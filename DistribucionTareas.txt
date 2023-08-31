@@ -1,0 +1,5 @@
+Keven: Usuarios, token, rol
+Griselda: Paciente, Cita
+Cristian: Especialidad, Doctores
+Marcos: EstadoCitas, DoctoresEspecialidades
+David: Rutas, Permisos

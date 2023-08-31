@@ -4,12 +4,20 @@ export class Registro extends Component {
   render() {
     return (
         <>
-        <label>Hola</label>
-        <input></input>
-        
+            <div>
+                <label for="exampleFormControlInput1" className="form-label">Especialidad</label>
+                <br></br>
+                <input type="text" className="form-control" id="exampleFormControlInput1"></input>
+            </div>
+            <div>
+                <label for="exampleFormControlInput1" className="form-label">Color</label>
+                <br></br>
+                <input type="color"></input>
+            </div>
+            <table>
+                
+            </table>
         </>
-        
-       
     )
   }
 }
