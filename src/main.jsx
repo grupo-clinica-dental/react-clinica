@@ -8,6 +8,7 @@ import "./index.css";
 import ErrorPage from "./error-page";
 import Contact from "./routes/contact";
 import Registro from "./routes/Registro";
+import Paciente from "./routes/Pacientes";
 import Root, { loader as rootLoader,   action as rootAction, } from "./routes/root";
 
 const router = createBrowserRouter([
@@ -23,8 +24,15 @@ const router = createBrowserRouter([
         element: <Contact />,
       },
       {
-        path: "contacts/:contactId/registro",
+        path: "/registro",
         element: <Registro />,
+        errorElement: <ErrorPage />,
+        loader : rootLoader, 
+        action: rootAction,
+      },
+      {
+        path: "/Paciente",
+        element: <Paciente />,
         errorElement: <ErrorPage />,
         loader : rootLoader, 
         action: rootAction,

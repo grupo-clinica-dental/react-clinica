@@ -60,9 +60,11 @@ export default function Root() {
               <a href={`/`}>
                 Inicio
               </a>
-              <a href={`contacts/:contactId/registro`}>
+              <a href={`/registro`}>
                 Registro
-                
+              </a>
+              <a href={`/Paciente`}>
+                Paciente
               </a>
             </ul>
           )}
