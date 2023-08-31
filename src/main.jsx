@@ -11,11 +11,14 @@ import Registro from "./routes/Registro";
 import Paciente from "./routes/Pacientes";
 import Citas from "./routes/Citas";
 import Root, { loader as rootLoader,   action as rootAction, } from "./routes/root";
+import Usuarios from "./routes/Usuarios";
+import Roles from "./routes/Roles";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
+    name:'Inicio',
     errorElement: <ErrorPage />,
     loader : rootLoader, 
     action: rootAction,
@@ -27,6 +30,7 @@ const router = createBrowserRouter([
       {
         path: "/registro",
         element: <Registro />,
+        name:'Registro',
         errorElement: <ErrorPage />,
         loader : rootLoader, 
         action: rootAction,
@@ -34,6 +38,7 @@ const router = createBrowserRouter([
       {
         path: "/Paciente",
         element: <Paciente />,
+        name:'Paciente',
         errorElement: <ErrorPage />,
         loader : rootLoader, 
         action: rootAction,
@@ -41,6 +46,23 @@ const router = createBrowserRouter([
       {
         path: "/Citas",
         element: < Citas/>,
+        name:'Citas',
+        errorElement: <ErrorPage />,
+        loader : rootLoader, 
+        action: rootAction,
+      },
+      {
+        path: "/Usuarios",
+        element: < Usuarios/>,
+        errorElement: <ErrorPage />,        
+        name:'Usuarios',
+        loader : rootLoader, 
+        action: rootAction,
+      },
+      {
+        path: "/Usuarios",
+        element: < Roles/>,        
+        name:'Citas',
         errorElement: <ErrorPage />,
         loader : rootLoader, 
         action: rootAction,

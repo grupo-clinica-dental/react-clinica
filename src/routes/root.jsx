@@ -1,5 +1,6 @@
 import { Link, Outlet,  useLoaderData, Form } from "react-router-dom";
 import { createContact, getContacts } from "../contacts";
+import { router } from "../main";
 
 
 export async function action() {
@@ -38,39 +39,38 @@ export default function Root() {
           </Form>
           </div>
           <nav>
-          {contacts.length ? (
-            <ul>
-              {contacts.map((contact) => (
-                <li key={contact.id}>
-                  <Link to={`contacts/${contact.id}`}>
-                    {contact.first || contact.last ? (
-                      <>
-                        {contact.first} {contact.last}
-                      </>
-                    ) : (
-                      <i>No Name</i>
-                    )}{" "}
-                    {contact.favorite && <span>★</span>}
+          <ul>
+                <li key={router.path}>
+                  <Link to={`/`}>
+                    Inicio
                   </Link>
                 </li>
-              ))}
+
+                <li key={router.path}>
+                  <Link to={`/registro`}>
+                    Registro
+                  </Link>
+                </li>
+
+                <li key={router.path}>
+                  <Link to={`/Paciente`}>
+                  Paciente
+                  </Link>
+                </li>
+
+                <li key={router.path}>
+                  <Link to={`/Citas`}>
+                  Citas
+                  </Link>
+                </li>
+
+                <li key={router.path}>
+                  <Link to={`/Usuarios`}>
+                  Usuarios
+                  </Link>
+                </li>
+                
             </ul>
-          ) : (
-            <ul>
-              <a href={`/`}>
-                Inicio
-              </a>
-              <a href={`/registro`}>
-                Registro
-              </a>
-              <a href={`/Paciente`}>
-                Paciente
-              </a>
-              <a href={`/Citas`}>
-                Citas
-              </a>
-            </ul>
-          )}
           </nav>
         </div>
         <div id="detail">
