@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const simulateFetchPermissions = () => {
+const Permises = () => {
   // Simulación de datos de permisos desde una API
   return new Promise(resolve => {
     setTimeout(() => {
@@ -20,7 +20,7 @@ const PermissionScreen = () => {
 
   const fetchPermissions = async () => {
     try {
-      const permissionsData = await simulateFetchPermissions();
+      const permissionsData = await Permises();
       setPermissions(permissionsData);
       setLoading(false);
     } catch (error) {
