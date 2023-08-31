@@ -55,9 +55,11 @@ export default function Root() {
               ))}
             </ul>
           ) : (
-            <p>
-              <i>No contacts</i>
-            </p>
+            <ul>
+              <a>
+                Inicio
+              </a>
+            </ul>
           )}
           </nav>
         </div>
