@@ -66,6 +66,9 @@ export default function Root() {
               <a href={`/Paciente`}>
                 Paciente
               </a>
+              <a href={`/Citas`}>
+                Citas
+              </a>
             </ul>
           )}
           </nav>

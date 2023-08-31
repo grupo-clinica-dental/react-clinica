@@ -9,6 +9,7 @@ import ErrorPage from "./error-page";
 import Contact from "./routes/contact";
 import Registro from "./routes/Registro";
 import Paciente from "./routes/Pacientes";
+import Citas from "./routes/Citas";
 import Root, { loader as rootLoader,   action as rootAction, } from "./routes/root";
 
 const router = createBrowserRouter([
@@ -33,6 +34,13 @@ const router = createBrowserRouter([
       {
         path: "/Paciente",
         element: <Paciente />,
+        errorElement: <ErrorPage />,
+        loader : rootLoader, 
+        action: rootAction,
+      },
+      {
+        path: "/Citas",
+        element: < Citas/>,
         errorElement: <ErrorPage />,
         loader : rootLoader, 
         action: rootAction,
