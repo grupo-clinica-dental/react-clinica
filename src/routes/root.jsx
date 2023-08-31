@@ -1,6 +1,7 @@
 import { Link, Outlet,  useLoaderData, Form } from "react-router-dom";
 import { createContact, getContacts } from "../contacts";
 
+
 export async function action() {
     const contact = await createContact();
     return { contact };
@@ -56,8 +57,12 @@ export default function Root() {
             </ul>
           ) : (
             <ul>
-              <a>
+              <a href={`/`}>
                 Inicio
+              </a>
+              <a href={`contacts/:contactId/registro`}>
+                Registro
+                
               </a>
             </ul>
           )}
