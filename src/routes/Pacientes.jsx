@@ -1,9 +1,12 @@
 
-import React, { Component, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
 
-const url = "http://localhost:3000/api/pacientes"; 
+const url = "http://localhost:3000/api/pacientes";
+
 export const Pacientes = () => {
+
+  const [envio, setEnvio] = useState(0);
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -32,15 +35,16 @@ export const Pacientes = () => {
       if (response.ok) {
         const responseData = await response.json();
         console.log("Datos Enviados");
-        console.log(JSON.stringify(responseData));
+        console.log(responseData);
+
+        setEnvio(envio + 1);
       } else {
         const responseBody = await response.json();
-        console.log("Error en enviar datos");
+        console.log("Error al enviar datos");
         console.log(responseBody);
       }
-
     } catch (error) {
-      console.error("Error en enviar datos", error);
+      console.error("Error al enviar datos", error);
     }
   };
 
@@ -54,9 +58,9 @@ export const Pacientes = () => {
       }
     })
       .then(response => response.json())
-      .then(data => setData(data.item_paciente))  
+      .then(data => setData(data.item_paciente))
       .catch(error => console.error(error));
-  }, []);
+  }, [envio]);
 
   return (
     <>
@@ -106,7 +110,7 @@ export const Pacientes = () => {
         <Button variant='primary' type='submit'>Enviar Datos</Button>
       </Form>
 
-      <h1>Reporte</h1>
+      <h1>Reporte de Pacientes</h1>
 
       <Table striped bordered hover>
         <thead>
@@ -134,4 +138,9 @@ export const Pacientes = () => {
   );
 }
 
-export default Pacientes
+export default Pacientes;
+
+
+
+
+
