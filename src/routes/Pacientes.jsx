@@ -64,77 +64,100 @@ export const Pacientes = () => {
 
   return (
     <>
-      <h1>Pacientes</h1>
+  <div className="container mt-2">
+    <div className="row">
+      <div className="col-md-12">
+       
+      </div>
+    </div>
+    
+    <div className="row">
+      <div className="col-md-8 offset-md-2">
+        <div className="card">
+          <div className="card-header">
+            Formulario de Registro
+          </div>
+          <div className="card-body">
+            <Form onSubmit={enviarDatos}>
+              <Form.Group>
+                <Form.Label>Nombre</Form.Label>
+                <Form.Control 
+                  type='text' 
+                  name='nombre'
+                  value={formData.nombre}
+                  onChange={cambioData}
+                />
+              </Form.Group>
 
-      <Form onSubmit={enviarDatos}>
-        <Form.Group>
-          <Form.Label>Nombre</Form.Label>
-          <Form.Control 
-            type='text' 
-            name='nombre'
-            value={formData.nombre}
-            onChange={cambioData}
-          />
-        </Form.Group>
+              <Form.Group>
+                <Form.Label>Teléfono</Form.Label>
+                <Form.Control 
+                  type='text' 
+                  name='telefono'
+                  value={formData.telefono}
+                  onChange={cambioData}
+                />
+              </Form.Group>
 
-        <Form.Group>
-          <Form.Label>Teléfono</Form.Label>
-          <Form.Control 
-            type='text' 
-            name='telefono'
-            value={formData.telefono}
-            onChange={cambioData}
-          />
-        </Form.Group>
+              <Form.Group>
+                <Form.Label>Email</Form.Label>
+                <Form.Control 
+                  type='email' 
+                  name='email'
+                  value={formData.email}
+                  onChange={cambioData}
+                />
+              </Form.Group>
 
-        <Form.Group>
-          <Form.Label>Email</Form.Label>
-          <Form.Control 
-            type='email' 
-            name='email'
-            value={formData.email}
-            onChange={cambioData}
-          />
-        </Form.Group>
+              <Form.Group>
+                <Form.Label>Fecha de Nacimiento</Form.Label>
+                <Form.Control 
+                  type='date' 
+                  name='fecha_nacimiento'
+                  value={formData.fecha_nacimiento}
+                  onChange={cambioData}
+                />
+              </Form.Group>
 
-        <Form.Group>
-          <Form.Label>Fecha de Nacimiento</Form.Label>
-          <Form.Control 
-            type='date' 
-            name='fecha_nacimiento'
-            value={formData.fecha_nacimiento}
-            onChange={cambioData}
-          />
-        </Form.Group>
+              <div className="d-flex justify-content-end">
+                <Button variant='primary' type='submit'>Enviar Datos</Button>
+              </div>
+            </Form>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <Button variant='primary' type='submit'>Enviar Datos</Button>
-      </Form>
-
-      <h1>Reporte de Pacientes</h1>
-
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th>Fecha de Nacimiento</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map(item => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>{item.nombre}</td>
-              <td>{item.telefono}</td>
-              <td>{item.email}</td>
-              <td>{item.fecha_nacimiento}</td>
+    <div className="row mt-5">
+      <div className="col-md-12">
+        <h1 className="mb-4">Reporte de Pacientes</h1>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Id</th>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Email</th>
+              <th>Fecha de Nacimiento</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
-    </>
+          </thead>
+          <tbody>
+            {data.map(item => (
+              <tr key={item.id}>
+                <td>{item.id}</td>
+                <td>{item.nombre}</td>
+                <td>{item.telefono}</td>
+                <td>{item.email}</td>
+                <td>{item.fecha_nacimiento}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
+    </div>
+  </div>
+</>
+
   );
 }
 
