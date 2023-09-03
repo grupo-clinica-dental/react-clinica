@@ -178,12 +178,12 @@ return (
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>ID</th>
+              <th>#Cita</th>
               <th>Fecha y Hora</th>
-              <th>ID del Doctor</th>
-              <th>ID del Paciente</th>
-              <th>ID del Estado</th>
-              <th>ID del Evento en Google Calendar</th>
+              <th>Doctor</th>
+              <th>Paciente</th>
+              <th>Estado</th>
+             
               <th>Ubicación</th>
               <th>Descripción</th>
               <th>Notas</th>
@@ -197,7 +197,7 @@ return (
                 <td>{item.doctor_id}</td>
                 <td>{item.paciente_id}</td>
                 <td>{item.estado_id}</td>
-                <td>{item.google_calendar_event_id}</td>
+               
                 <td>{item.ubicacion}</td>
                 <td>{item.descripcion}</td>
                 <td>{item.notas}</td>

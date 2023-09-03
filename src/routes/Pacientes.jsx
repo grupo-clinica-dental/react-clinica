@@ -14,7 +14,11 @@ export const Pacientes = () => {
     email: '',
     fecha_nacimiento: ''
   });
+  const [showModal, setShowModal] = useState(false); // Para manejar la apertura/cierre del modal
 
+  const handleClose = () => setShowModal(false);
+  const handleShow = () => setShowModal(true);
+  
   const cambioData = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
@@ -134,7 +138,7 @@ export const Pacientes = () => {
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>Id</th>
+              <th>#Paciente</th>
               <th>Nombre</th>
               <th>Teléfono</th>
               <th>Email</th>
