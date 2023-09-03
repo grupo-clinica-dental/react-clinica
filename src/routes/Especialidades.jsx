@@ -94,11 +94,15 @@ var url = "http://localhost:3000/api/especialidades";
                     <tr>
                         <th>Nombre</th>
                         <th>Fecha Borrado</th>
-                       
                     </tr>
                 </thead>
                 <tbody>
-
+                    {Data.map( item => (
+                        <tr key = {item.id}>
+                           <td>{item.nombre}</td> 
+                           <td>{item.fecha_borrado}</td>
+                        </tr>
+                    ))}
                 </tbody>
             </Table>
        </>

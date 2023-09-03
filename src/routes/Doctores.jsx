@@ -102,7 +102,14 @@ var url = "http://localhost:3000/api/doctores";
                     </tr>
                 </thead>
                 <tbody>
-
+                    {Data.map( item => (
+                        <tr key = {item.id}>
+                           <td>{item.usuario_id}</td> 
+                           <td>{item.fecha_borrado}</td>
+                           <td>{item.color}</td>
+                           
+                        </tr>
+                    ))}
                 </tbody>
             </Table>
        </>
