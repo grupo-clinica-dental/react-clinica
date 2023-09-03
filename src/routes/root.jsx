@@ -47,7 +47,7 @@ export default function Root() {
                 </li>
 
                 <li key={router.path}>
-                  <Link to={`/registro`}>
+                  <Link to={`/Doctores`}>
                     Doctores
                   </Link>
                 </li>
@@ -69,6 +69,13 @@ export default function Root() {
                   Usuarios
                   </Link>
                 </li>
+
+                <li key={router.path}>
+                  <Link to={`/Especialidades`}>
+                    Especialidades
+                  </Link>
+                </li>
+
                 
             </ul>
           </nav>

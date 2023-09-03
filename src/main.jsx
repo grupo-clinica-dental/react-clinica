@@ -10,6 +10,7 @@ import Contact from "./routes/contact";
 import Doctores from "./routes/Doctores";
 import Paciente from "./routes/Pacientes";
 import Citas from "./routes/Citas";
+import Especialidades from "./routes/Especialidades"
 import Root, { loader as rootLoader,   action as rootAction, } from "./routes/root";
 import Usuarios from "./routes/Usuarios";
 import Roles from "./routes/Roles";
@@ -28,7 +29,7 @@ export const router = createBrowserRouter([
         element: <Contact />,
       },
       {
-        path: "/registro",
+        path: "/Doctores",
         element: <Doctores />,
         name:'Doctores',
         errorElement: <ErrorPage />,
@@ -66,7 +67,15 @@ export const router = createBrowserRouter([
         errorElement: <ErrorPage />,
         loader : rootLoader, 
         action: rootAction,
-      }
+      },
+      {
+        path: "/Especialidades",
+        element: <Especialidades />,
+        name:'Especialidades',
+        errorElement: <ErrorPage />,
+        loader : rootLoader, 
+        action: rootAction,
+      },
     ],
   },
 ]);
