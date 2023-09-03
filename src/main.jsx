@@ -7,7 +7,7 @@ import {
 import "./index.css";
 import ErrorPage from "./error-page";
 import Contact from "./routes/contact";
-import Registro from "./routes/Registro";
+import Doctores from "./routes/Doctores";
 import Paciente from "./routes/Pacientes";
 import Citas from "./routes/Citas";
 import Root, { loader as rootLoader,   action as rootAction, } from "./routes/root";
@@ -29,8 +29,8 @@ export const router = createBrowserRouter([
       },
       {
         path: "/registro",
-        element: <Registro />,
-        name:'Registro',
+        element: <Doctores />,
+        name:'Doctores',
         errorElement: <ErrorPage />,
         loader : rootLoader, 
         action: rootAction,
@@ -59,7 +59,7 @@ export const router = createBrowserRouter([
         loader : rootLoader, 
         action: rootAction,
       },
-      {
+     {
         path: "/Usuarios",
         element: < Roles/>,        
         name:'Citas',

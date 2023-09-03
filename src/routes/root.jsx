@@ -48,7 +48,7 @@ export default function Root() {
 
                 <li key={router.path}>
                   <Link to={`/registro`}>
-                    Registro
+                    Doctores
                   </Link>
                 </li>
 
