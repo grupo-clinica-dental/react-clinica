@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const Permises = () => {
+export const Permises = () => {
   // Simulación de datos de permisos desde una API
   return new Promise(resolve => {
     setTimeout(() => {
