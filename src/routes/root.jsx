@@ -69,7 +69,18 @@ export default function Root() {
                   Usuarios
                   </Link>
                 </li>
-                
+
+                <li key={router.path}>
+                  <Link to={`/Permisos`}>
+                  permisos
+                  </Link>
+                </li>
+
+                <li key={router.path}>
+                  <Link to={`/Ruta`}>
+                  Rutas
+                  </Link>
+                </li>
             </ul>
           </nav>
         </div>

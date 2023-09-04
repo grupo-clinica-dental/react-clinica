@@ -13,6 +13,8 @@ import Citas from "./routes/Citas";
 import Root, { loader as rootLoader,   action as rootAction, } from "./routes/root";
 import Usuarios from "./routes/Usuarios";
 import Roles from "./routes/Roles";
+import Rutas from "./routes/Ruta";
+import Permisos from "./routes/Permisos1";
 
 export const router = createBrowserRouter([
   {
@@ -66,7 +68,25 @@ export const router = createBrowserRouter([
         errorElement: <ErrorPage />,
         loader : rootLoader, 
         action: rootAction,
+      },
+      {
+        path: "/Ruta", 
+        element: <Rutas />, 
+        name: 'Rutas', 
+        errorElement: <ErrorPage />,
+        loader: rootLoader,
+        action: rootAction,
+      },
+      {
+        path: "/Permisos", 
+        element: <Permisos />, 
+        name: 'Permisos', 
+        errorElement: <ErrorPage />,
+        loader: rootLoader,
+        action: rootAction,
       }
+      
+      
     ],
   },
 ]);
