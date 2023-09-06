@@ -67,7 +67,6 @@ export const Citas = () => {
         }  
         
       
-      
       })
       .catch(error => console.error(error));
   }, [envio]);

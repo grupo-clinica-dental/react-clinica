@@ -14,10 +14,7 @@ export const Pacientes = () => {
     email: '',
     fecha_nacimiento: ''
   });
-  const [showModal, setShowModal] = useState(false); // Para manejar la apertura/cierre del modal
-
-  const handleClose = () => setShowModal(false);
-  const handleShow = () => setShowModal(true);
+ 
   
   const cambioData = (event) => {
     const { name, value } = event.target;
@@ -61,10 +58,19 @@ export const Pacientes = () => {
         'Content-Type': 'application/json'
       }
     })
-      .then(response => response.json())
-      .then(data => setData(data.item_paciente))
-      .catch(error => console.error(error));
-  }, [envio]);
+    .then(response => response.json())
+    .then(data => {
+
+      if (!data){
+        setData(data.item_paciente)
+      }  
+      
+    
+    })
+    .catch(error => console.error(error));
+}, [envio]);
+
+
 
   return (
     <>
