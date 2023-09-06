@@ -31,12 +31,10 @@ var url = "http://localhost:3000/api/especialidades";
             });
             if (response.ok) {
                 const responsebody = await response.json()
-                console.log("DATOS ENVIADOS");
-                console.log(response);
+                getDatos();
             }else{
                 const responsebody = await response.json()
-                console.log("Error en enviar los datos")
-                console.log(response);
+                
             }
 
         }catch (error){
@@ -46,31 +44,21 @@ var url = "http://localhost:3000/api/especialidades";
     
     const [Data, useData] = useState([])
 
+    const getDatos = async ()=>{
+
+        const response = await fetch(url);
+        const responseData = await response.json();
+
+        if (response.ok){
+
+            useData(responseData);
+
+        }
+
+    };
+
     useEffect( () => {
-
-        fetch(url, {
-
-            method: 'GET',
-            headers: {
-
-                'Content-Type' : 'aplication/json'
-            }
-        })
-        .then(response => {
-
-            return response.json();
-        })
-        .then( data => {
-
-            if (!data){
-                useData(data) 
-            }
-
-        })
-        .catch((error) => {
-            console.error(error);
-        })
-
+        getDatos();
     }, []);
 
 
