@@ -60,9 +60,11 @@ var url = "http://localhost:3000/api/especialidades";
 
             return response.json();
         })
-        .then( Data => {
+        .then( data => {
 
-            useData(Data) 
+            if (!data){
+                useData(data) 
+            }
 
         })
         .catch((error) => {
