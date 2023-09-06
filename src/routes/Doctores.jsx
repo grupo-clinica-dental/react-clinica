@@ -59,9 +59,12 @@ var url = "http://localhost:3000/api/doctores";
 
             return response.json();
         })
-        .then( Data => {
-
-            useData(Data) 
+        .then( data => {
+            
+            if (!data){
+                useData(data) 
+            }
+            
 
         })
         .catch((error) => {

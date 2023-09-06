@@ -60,7 +60,15 @@ export const Citas = () => {
       }
     })
       .then(response => response.json())
-      .then(data => setData(data.item_cita))
+      .then(data => {
+
+        if (!data){
+          setData(data.item_cita)
+        }  
+        
+      
+      
+      })
       .catch(error => console.error(error));
   }, [envio]);
 
