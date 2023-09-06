@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
 
-const apiUrl = "http://localhost:3000/api/permisos"; // Cambia la URL a la de tu API de permisos
+const apiUrl = "http://localhost:3000/api/permisos"; 
+const rolesUrl = "http://localhost:3000/api/roles";
+const rutasUrl = "http://localhost:3000/api/rutas"; // Nueva URL para obtener nombres de rutas
 
 export const Permisos = () => {
   const [envio, setEnvio] = useState(0);
 
   const [formData, setFormData] = useState({
-    id_ruta: '',
-    id_rol: '',
-    activa: true, // Por defecto, establecemos que el permiso está activo
-    fecha_borrado: null, // Inicialmente, no hay fecha de borrado
+    id_ruta: '', // Cambiamos el campo a "id_ruta"
+    nombre_rol: '',
+    activa: true,
+    fecha_borrado: null,
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -52,6 +54,23 @@ export const Permisos = () => {
   };
 
   const [data, setData] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [rutas, setRutas] = useState([]); // Estado para almacenar los nombres de las rutas
+
+  useEffect(() => {
+    fetch(rolesUrl)
+      .then((response) => response.json())
+      .then((data) => setRoles(data.roles.map((rol) => rol.Nombre)))
+      .catch((error) => console.error(error));
+  }, []);
+
+  useEffect(() => {
+    // Realiza una solicitud para obtener solo los nombres de las rutas desde tu API
+    fetch(rutasUrl)
+      .then((response) => response.json())
+      .then((data) => setRutas(data.rutas.map((ruta) => ruta.Nombre))) // Extrae los nombres de las rutas
+      .catch((error) => console.error(error));
+  }, []); // Se ejecuta una vez al montar el componente
 
   useEffect(() => {
     fetch(apiUrl, {
@@ -82,23 +101,37 @@ export const Permisos = () => {
               <div className="card-body">
                 <Form onSubmit={enviarDatos}>
                   <Form.Group>
-                    <Form.Label>ID de Ruta</Form.Label>
-                    <Form.Control 
-                      type='text' 
-                      name='id_ruta'
+                    <Form.Label>Ruta</Form.Label>
+                    <Form.Control
+                      as="select"
+                      name="id_ruta"
                       value={formData.id_ruta}
                       onChange={cambioData}
-                    />
+                    >
+                      <option value="">Selecciona una Ruta</option>
+                      {rutas.map((nombreRuta, index) => (
+                        <option key={index} value={nombreRuta}>
+                          {nombreRuta}
+                        </option>
+                      ))}
+                    </Form.Control>
                   </Form.Group>
 
                   <Form.Group>
-                    <Form.Label>ID de Rol</Form.Label>
-                    <Form.Control 
-                      type='text' 
-                      name='id_rol'
-                      value={formData.id_rol}
+                    <Form.Label>Nombre del Rol</Form.Label>
+                    <Form.Control
+                      as="select"
+                      name="nombre_rol"
+                      value={formData.nombre_rol}
                       onChange={cambioData}
-                    />
+                    >
+                      <option value="">Selecciona un Rol</option>
+                      {roles.map((nombreRol, index) => (
+                        <option key={index} value={nombreRol}>
+                          {nombreRol}
+                        </option>
+                      ))}
+                    </Form.Control>
                   </Form.Group>
 
                   <Form.Group>
@@ -127,8 +160,8 @@ export const Permisos = () => {
               <thead>
                 <tr>
                   <th>#Permiso</th>
-                  <th>ID de Ruta</th>
-                  <th>ID de Rol</th>
+                  <th>Ruta</th>
+                  <th>Nombre del Rol</th>
                   <th>Permiso Activo</th>
                   <th>Fecha de Borrado</th>
                 </tr>
@@ -138,7 +171,7 @@ export const Permisos = () => {
                   <tr key={item.id}>
                     <td>{item.id}</td>
                     <td>{item.id_ruta}</td>
-                    <td>{item.id_rol}</td>
+                    <td>{item.nombre_rol}</td>
                     <td>{item.activa ? 'Sí' : 'No'}</td>
                     <td>{item.fecha_borrado ? item.fecha_borrado : 'N/A'}</td>
                   </tr>
@@ -153,3 +186,4 @@ export const Permisos = () => {
 };
 
 export default Permisos;
+
