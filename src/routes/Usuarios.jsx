@@ -36,9 +36,6 @@ export const Usuarios = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-<<<<<<< Updated upstream
-        getDatos();
-=======
         console.log("Datos Enviados");
         console.log(JSON.stringify(responseData));
         fetch(url, {
@@ -50,7 +47,6 @@ export const Usuarios = () => {
           .then((response) => response.json())
           .then((data) => setData(data)) 
           .catch((error) => console.error(error));
->>>>>>> Stashed changes
       } else {
         const responseBody = await response.json();
         console.log("Error al enviar datos");
@@ -68,24 +64,11 @@ export const Usuarios = () => {
 
   const [data, setData] = useState([]);
 
-  const getDatos = async ()=>{
 
-    const response = await fetch(url);
-    const responseData = await response.json();
-    if (response.ok){
-
-      setData(responseData);
-
-    }
-
-  }
 
   useEffect(() => {
-<<<<<<< Updated upstream
     
-    getDatos();
 
-=======
     fetch(url, {
       method: "GET",
       headers: {
@@ -95,7 +78,6 @@ export const Usuarios = () => {
       .then((response) => response.json())
       .then((data) => setData(data)) // Asegúrate de que este sea el campo correcto
       .catch((error) => console.error(error));
->>>>>>> Stashed changes
   }, []);
 
   return (
