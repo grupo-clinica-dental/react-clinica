@@ -4,9 +4,6 @@ import { Form, Button, Table } from 'react-bootstrap';
 const url = "http://localhost:3000/api/citas";
 
 export const Citas = () => {
-
-  const [envio, setEnvio] = useState(0);
-
   const [formData, setFormData] = useState({
     fecha_hora: '',
     doctor_id: '',
@@ -39,7 +36,7 @@ export const Citas = () => {
         const responseData = await response.json();
         console.log("Datos Enviados");
         console.log(responseData);
-        setEnvio(envio + 1);
+        getCitas(); 
       } else {
         const responseBody = await response.json();
         console.log("Error al enviar datos");
@@ -52,24 +49,26 @@ export const Citas = () => {
 
   const [data, setData] = useState([]);
 
-  useEffect(() => {
-    fetch(url, {
+  const getCitas = async () => {
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       }
-    })
-      .then(response => response.json())
-      .then(data => {
+    });
+    const responseData = await response.json();
 
-        if (!data){
-          setData(data.item_cita)
-        }  
-        
-      
-      })
-      .catch(error => console.error(error));
-  }, [envio]);
+    if (response.ok && responseData.item_cita) {
+      setData(responseData.item_cita);
+    } else {
+      setData([]);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Se invocó el useEffect");
+    getCitas();
+  }, []);
 
 
 return (
