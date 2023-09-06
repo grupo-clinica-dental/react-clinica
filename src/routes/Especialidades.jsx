@@ -5,8 +5,8 @@ var url = "http://localhost:3000/api/especialidades";
 
  const especialidades = () => {
     const [formData, useFormData] = useState({
-        nombre : '',
-        fecha_borrado : '',
+        nombre : ''
+        
         
         
     });
@@ -70,10 +70,7 @@ var url = "http://localhost:3000/api/especialidades";
                     <Form.Label>Nombre</Form.Label>
                     <Form.Control type='text' name='nombre' value={formData.nombre} onChange={cambiodata}/>
                 </Form.Group>
-                <Form.Group>
-                    <Form.Label>Fecha Borrado</Form.Label>
-                    <Form.Control type='text' name='fecha_borrado' value={formData.fecha_borrado} onChange={cambiodata}/>
-                </Form.Group>
+                
                 <Button variant='primary' type='submit'>Enviar Datos</Button>
 
             </Form>
