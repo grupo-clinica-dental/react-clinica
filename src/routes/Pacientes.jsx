@@ -6,8 +6,6 @@ const url = "http://localhost:3000/api/pacientes";
 
 export const Pacientes = () => {
 
-  const [envio, setEnvio] = useState(0);
-
   const [formData, setFormData] = useState({
     nombre: '',
     telefono: '',
@@ -35,40 +33,42 @@ export const Pacientes = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log("Datos Enviados");
-        console.log(responseData);
+        
+        getDatos();
 
-        setEnvio(envio + 1);
       } else {
         const responseBody = await response.json();
-        console.log("Error al enviar datos");
-        console.log(responseBody);
+        
       }
     } catch (error) {
       console.error("Error al enviar datos", error);
     }
   };
 
-  const [data, setData] = useState([]);
+  const [datos, setDatos] = useState([]);
+
+  const getDatos = async ()=>{
+
+    const response = await fetch(url);
+    const responseData = await response.json();
+
+    if (response.ok){
+      setDatos(responseData.item_paciente);
+    }else{
+
+      setDatos([]);
+
+    }
+    
+
+  }
 
   useEffect(() => {
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
 
-      if (!data){
-        setData(data.item_paciente)
-      }  
-      
+    console.log("Se invoco el use Effect")
+    getDatos()
     
-    })
-    .catch(error => console.error(error));
-}, [envio]);
+  }, []);
 
 
 
@@ -152,7 +152,7 @@ export const Pacientes = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map(item => (
+            {datos.map(item => (
               <tr key={item.id}>
                 <td>{item.id}</td>
                 <td>{item.nombre}</td>

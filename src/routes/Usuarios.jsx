@@ -30,8 +30,7 @@ export const Usuarios = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log("Datos Enviados");
-        console.log(JSON.stringify(responseData));
+        getDatos();
       } else {
         const responseBody = await response.json();
         console.log("Error al enviar datos");
@@ -44,16 +43,22 @@ export const Usuarios = () => {
 
   const [data, setData] = useState([]);
 
+  const getDatos = async ()=>{
+
+    const response = await fetch(url);
+    const responseData = await response.json();
+    if (response.ok){
+
+      setData(responseData);
+
+    }
+
+  }
+
   useEffect(() => {
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => setData(data.usuarios)) // Asegúrate de que este sea el campo correcto
-      .catch((error) => console.error(error));
+    
+    getDatos();
+
   }, []);
 
   return (
