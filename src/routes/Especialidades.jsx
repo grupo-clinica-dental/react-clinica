@@ -16,7 +16,7 @@ var url = "http://localhost:3000/api/especialidades";
         useFormData({...formData, [name] : value })
     }
 
-    const Enviardatos = async () => {
+    const Enviardatos = async (event) => {
         event.preventDefault();
 
         try{
@@ -24,7 +24,7 @@ var url = "http://localhost:3000/api/especialidades";
             const response = await fetch( url , {
                 method : 'POST',
                 headers : {
-                    'Content-Type' : 'aplication/json'
+                    'Content-Type' : 'application/json'
                 },
                 body : JSON.stringify(formData)
 

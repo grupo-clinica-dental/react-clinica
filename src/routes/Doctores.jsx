@@ -15,7 +15,7 @@ var url = "http://localhost:3000/api/doctores";
         useFormData({...formData, [name] : value })
     }
 
-    const Enviardatos = async () => {
+    const Enviardatos = async (event) => {
         event.preventDefault();
 
         try{
@@ -23,7 +23,7 @@ var url = "http://localhost:3000/api/doctores";
             const response = await fetch( url , {
                 method : 'POST',
                 headers : {
-                    'Content-Type' : 'aplication/json'
+                    'Content-Type' : 'application/json'
                 },
                 body : JSON.stringify(formData)
 
@@ -48,7 +48,7 @@ var url = "http://localhost:3000/api/doctores";
         const response = await fetch(url);
         const responseData = await response.json();
 
-        if (!response.ok){
+        if (response.ok){
 
             useData(responseData);
 
@@ -57,9 +57,7 @@ var url = "http://localhost:3000/api/doctores";
     };
 
     useEffect( () => {
-
         getDatos();
-
     }, []);
 
 
@@ -94,7 +92,7 @@ var url = "http://localhost:3000/api/doctores";
                     </tr>
                 </thead>
                 <tbody>
-                    {Data.map( item => (
+                    {Data.map(item => (
                         <tr key = {item.id}>
                            <td>{item.nombre}</td> 
                            <td>{item.correo_electronico}</td>
