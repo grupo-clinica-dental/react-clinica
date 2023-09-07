@@ -67,7 +67,7 @@ var url = "http://localhost:3000/api/especialidades";
             <h2> Especialidades</h2>
             <Form onSubmit={Enviardatos}>
                 <Form.Group>
-                    <Form.Label>Nombre</Form.Label>
+                    <Form.Label>Nombre Especialidad</Form.Label>
                     <Form.Control type='text' name='nombre' value={formData.nombre} onChange={cambiodata}/>
                 </Form.Group>
                 
@@ -79,15 +79,15 @@ var url = "http://localhost:3000/api/especialidades";
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Fecha Borrado</th>
+                        <th>Nombre Especialidad</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
                     {Data.map( item => (
                         <tr key = {item.id}>
                            <td>{item.nombre}</td> 
-                           <td>{item.fecha_borrado}</td>
+                           
                         </tr>
                     ))}
                 </tbody>
