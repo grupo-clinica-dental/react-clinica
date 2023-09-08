@@ -4,9 +4,11 @@ import { Form, Button, Table } from 'react-bootstrap';
 
 const url = "http://localhost:3000/api/pacientes";
 
+
 export const Pacientes = () => {
 
   const [formData, setFormData] = useState({
+    id: '',
     nombre: '',
     telefono: '',
     email: '',
@@ -21,6 +23,35 @@ export const Pacientes = () => {
 
   const enviarDatos = async (event) => {
     event.preventDefault();
+
+    if (formData.id){
+      enviarDataPUT();
+    }else{
+      enviarDataPost();
+    }
+    
+  };
+
+  const [datos, setDatos] = useState([]);
+
+  const getDatos = async ()=>{
+
+    const response = await fetch(url);
+    const responseData = await response.json();
+
+    if (response.ok){
+      setDatos(responseData.item_paciente);
+    }else{
+
+      setDatos([]);
+
+    }
+    
+
+  }
+
+
+  const enviarDataPost= async ()=>{
 
     try {
       const response = await fetch(url, {
@@ -43,25 +74,84 @@ export const Pacientes = () => {
     } catch (error) {
       console.error("Error al enviar datos", error);
     }
-  };
 
-  const [datos, setDatos] = useState([]);
-
-  const getDatos = async ()=>{
-
-    const response = await fetch(url);
-    const responseData = await response.json();
-
-    if (response.ok){
-      setDatos(responseData.item_paciente);
-    }else{
-
-      setDatos([]);
-
-    }
-    
 
   }
+  
+  const enviarDataPUT= async ()=>{
+    
+    try {
+      const response = await fetch(url+'/'+formData.id, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        
+        getDatos();
+
+      } else {
+        const responseBody = await response.json();
+        
+      }
+    } catch (error) {
+      console.error("Error al enviar datos", error);
+    }
+
+  }
+  
+  async function enviarDataDelete (item) {
+  
+  
+    try {
+      const response =  await fetch(url+'/'+item.id, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (response.ok) {
+        const responseData =  await response.json();
+        getDatos();
+  
+      } else {
+        const responseBody =  await response.json();
+        
+      }
+    } catch (error) {
+      console.error("Error al enviar datos", error);
+    }
+  
+  }
+  
+  
+  
+  function actualizarForm( item ){
+  
+     
+      let arreglo = {
+  
+        id : item.id,
+        nombre: item.nombre,
+        telefono: item.telefono,
+        email: item.email,
+        fecha_nacimiento: item.fecha_nacimiento
+  
+      }
+  
+  
+      setFormData(arreglo);
+      //setFormData({ ...formData, arreglo });
+      //setFormData({ ...formData, ...arreglo });
+  }
+  
+ 
+
 
   useEffect(() => {
 
@@ -89,6 +179,19 @@ export const Pacientes = () => {
           </div>
           <div className="card-body">
             <Form onSubmit={enviarDatos}>
+
+            <Form.Group>
+                
+                <Form.Control 
+                  type='hidden' 
+                  name='nombre'
+                  value={formData.id}
+                  onChange={cambioData}
+                />
+              </Form.Group>
+
+
+
               <Form.Group>
                 <Form.Label>Nombre</Form.Label>
                 <Form.Control 
@@ -149,6 +252,7 @@ export const Pacientes = () => {
               <th>Teléfono</th>
               <th>Email</th>
               <th>Fecha de Nacimiento</th>
+              <th colSpan={2}>Accion</th>
             </tr>
           </thead>
           <tbody>
@@ -159,6 +263,8 @@ export const Pacientes = () => {
                 <td>{item.telefono}</td>
                 <td>{item.email}</td>
                 <td>{item.fecha_nacimiento}</td>
+                <td><button onClick={() => actualizarForm(item)} >Actualizar</button></td>
+                <td><button onClick={() => enviarDataDelete(item)}>Borrar</button></td>
               </tr>
             ))}
           </tbody>
