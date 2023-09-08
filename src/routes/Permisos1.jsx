@@ -5,12 +5,12 @@ const apiUrl = "http://localhost:3000/api/permisos";
 const rolesUrl = "http://localhost:3000/api/roles";
 const rutasUrl = "http://localhost:3000/api/rutas";
 
-export const Permisos = () => {
+const Permisos = () => {
   const [envio, setEnvio] = useState(0);
 
   const [formData, setFormData] = useState({
-    nombre_ruta: '',
-    nombre_rol: '',
+    rol_id: '', // Cambiar a rol_id en lugar de nombre_rol
+    ruta_id: '', // Cambiar a ruta_id en lugar de nombre_ruta
     activa: false,
     fecha_borrado: null,
   });
@@ -53,20 +53,23 @@ export const Permisos = () => {
   const [rutas, setRutas] = useState([]);
 
   useEffect(() => {
+    // Obtener datos de roles desde la API
     fetch(rolesUrl)
       .then((response) => response.json())
-      .then((data) => setRoles(data.roles.map((rol) => rol.nombre_rol)))
+      .then((data) => setRoles(data)) // Roles ahora es un arreglo
       .catch((error) => console.error(error));
   }, []);
 
   useEffect(() => {
+    // Obtener datos de rutas desde la API
     fetch(rutasUrl)
       .then((response) => response.json())
-      .then((data) => setRutas(data.rutas.map((ruta) => ruta.string_ruta)))
+      .then((data) => setRutas(data)) // Rutas ahora es un arreglo
       .catch((error) => console.error(error));
   }, []);
 
   useEffect(() => {
+    // Obtener datos de permisos desde la API
     fetch(apiUrl, {
       method: 'GET',
       headers: {
@@ -97,34 +100,36 @@ export const Permisos = () => {
                   <Form.Group>
                     <Form.Label>Ruta</Form.Label>
                     <Form.Control
-                      as="select" 
-                      name="string_ruta"
-                      value={formData.string_ruta}
+                      as="select"
+                      name="ruta_id"
+                      value={formData.ruta_id}
                       onChange={cambioData}
                     >
                       <option value="">Selecciona una Ruta</option>
-                      {rutas.map((ruta, index) => (
-                        <option key={index} value={ruta}>
-                          {ruta}
-                        </option>
-                      ))}
+                      {Array.isArray(rutas) &&
+                        rutas.map((ruta) => (
+                          <option key={ruta.id} value={ruta.id}>
+                            {ruta.nombre_ruta}
+                          </option>
+                        ))}
                     </Form.Control>
                   </Form.Group>
 
                   <Form.Group>
                     <Form.Label>Nombre del Rol</Form.Label>
                     <Form.Control
-                      as="select" 
-                      name="nombre_rol"
-                      value={formData.nombre_rol}
+                      as="select"
+                      name="rol_id"
+                      value={formData.rol_id}
                       onChange={cambioData}
                     >
                       <option value="">Selecciona un Rol</option>
-                      {roles.map((rol, index) => (
-                        <option key={index} value={rol}>
-                          {rol}
-                        </option>
-                      ))}
+                      {Array.isArray(roles) &&
+                        roles.map((rol) => (
+                          <option key={rol.id} value={rol.id}>
+                            {rol.nombre_rol}
+                          </option>
+                        ))}
                     </Form.Control>
                   </Form.Group>
 
@@ -139,7 +144,9 @@ export const Permisos = () => {
                   </Form.Group>
 
                   <div className="d-flex justify-content-end">
-                    <Button variant='primary' type='submit'>Enviar Datos de Permiso</Button>
+                    <Button variant="primary" type="submit">
+                      Enviar Datos de Permiso
+                    </Button>
                   </div>
                 </Form>
               </div>
@@ -161,11 +168,11 @@ export const Permisos = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.map(item => (
+                {data.map((item) => (
                   <tr key={item.id}>
                     <td>{item.id}</td>
-                    <td>{item.nombre_ruta}</td>
-                    <td>{item.nombre_rol}</td>
+                    <td>{item.id_ruta}</td>
+                    <td>{item.id_rol}</td>
                     <td>{item.activa ? 'Sí' : 'No'}</td>
                     <td>{item.fecha_borrado ? item.fecha_borrado : 'N/A'}</td>
                   </tr>
@@ -180,4 +187,3 @@ export const Permisos = () => {
 };
 
 export default Permisos;
-
