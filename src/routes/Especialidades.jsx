@@ -5,8 +5,8 @@ var url = "http://localhost:3000/api/especialidades";
 
  const especialidades = () => {
     const [formData, useFormData] = useState({
-        nombre : '',
-        fecha_borrado : '',
+        nombre : ''
+        
         
         
     });
@@ -16,7 +16,7 @@ var url = "http://localhost:3000/api/especialidades";
         useFormData({...formData, [name] : value })
     }
 
-    const Enviardatos = async () => {
+    const Enviardatos = async (event) => {
         event.preventDefault();
 
         try{
@@ -24,7 +24,7 @@ var url = "http://localhost:3000/api/especialidades";
             const response = await fetch( url , {
                 method : 'POST',
                 headers : {
-                    'Content-Type' : 'aplication/json'
+                    'Content-Type' : 'application/json'
                 },
                 body : JSON.stringify(formData)
 
@@ -67,13 +67,10 @@ var url = "http://localhost:3000/api/especialidades";
             <h2> Especialidades</h2>
             <Form onSubmit={Enviardatos}>
                 <Form.Group>
-                    <Form.Label>Nombre</Form.Label>
+                    <Form.Label>Nombre Especialidad</Form.Label>
                     <Form.Control type='text' name='nombre' value={formData.nombre} onChange={cambiodata}/>
                 </Form.Group>
-                <Form.Group>
-                    <Form.Label>Fecha Borrado</Form.Label>
-                    <Form.Control type='text' name='fecha_borrado' value={formData.fecha_borrado} onChange={cambiodata}/>
-                </Form.Group>
+                
                 <Button variant='primary' type='submit'>Enviar Datos</Button>
 
             </Form>
@@ -82,15 +79,15 @@ var url = "http://localhost:3000/api/especialidades";
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Fecha Borrado</th>
+                        <th>Nombre Especialidad</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
                     {Data.map( item => (
                         <tr key = {item.id}>
                            <td>{item.nombre}</td> 
-                           <td>{item.fecha_borrado}</td>
+                           
                         </tr>
                     ))}
                 </tbody>

@@ -5,8 +5,8 @@ var url = "http://localhost:3000/api/doctores";
 
  const Doctores = () => {
     const [formData, useFormData] = useState({
-        usuario_id : '',
-        fecha_borrado : '',
+        nombre : '',
+        correo_electronico : '',
         color : ''
     });
 
@@ -15,7 +15,7 @@ var url = "http://localhost:3000/api/doctores";
         useFormData({...formData, [name] : value })
     }
 
-    const Enviardatos = async () => {
+    const Enviardatos = async (event) => {
         event.preventDefault();
 
         try{
@@ -23,7 +23,7 @@ var url = "http://localhost:3000/api/doctores";
             const response = await fetch( url , {
                 method : 'POST',
                 headers : {
-                    'Content-Type' : 'aplication/json'
+                    'Content-Type' : 'application/json'
                 },
                 body : JSON.stringify(formData)
 
@@ -57,9 +57,7 @@ var url = "http://localhost:3000/api/doctores";
     };
 
     useEffect( () => {
-
         getDatos();
-
     }, []);
 
 
@@ -68,16 +66,16 @@ var url = "http://localhost:3000/api/doctores";
             <h2> Doctores</h2>
             <Form onSubmit={Enviardatos}>
                 <Form.Group>
-                    <Form.Label>Usuario_id</Form.Label>
-                    <Form.Control type='text' name='usuario_id' value={formData.usuario_id} onChange={cambiodata}/>
+                    <Form.Label>Nombre</Form.Label>
+                    <Form.Control type='text' name='nombre' value={formData.nombre} onChange={cambiodata}/>
                 </Form.Group>
                 <Form.Group>
-                    <Form.Label>Fecha Borrado</Form.Label>
-                    <Form.Control type='text' name='fecha_borrado' value={formData.fecha_borrado} onChange={cambiodata}/>
+                    <Form.Label>Correo electronico</Form.Label>
+                    <Form.Control type='email' name='correo_electronico' value={formData.correo_electronico} onChange={cambiodata}/>
                 </Form.Group>
                 <Form.Group>
                     <Form.Label>Color</Form.Label>
-                    <Form.Control type='text' name='color' value={formData.color} onChange={cambiodata}/>
+                    <Form.Control type='color' name='color' value={formData.color} onChange={cambiodata}/>
                 </Form.Group>
 
                 <Button variant='primary' type='submit'>Enviar Datos</Button>
@@ -88,16 +86,16 @@ var url = "http://localhost:3000/api/doctores";
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>Usuario_id</th>
-                        <th>Fecha Borrado</th>
+                        <th>Nombre</th>
+                        <th>Correo Electronico</th>
                         <th>Color</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {Data.map( item => (
+                    {Data.map(item => (
                         <tr key = {item.id}>
-                           <td>{item.usuario_id}</td> 
-                           <td>{item.fecha_borrado}</td>
+                           <td>{item.nombre}</td> 
+                           <td>{item.correo_electronico}</td>
                            <td>{item.color}</td>
                            
                         </tr>
