@@ -3,6 +3,8 @@ import { Form, Button, Table } from 'react-bootstrap';
 
 const url = "http://localhost:3000/api/citas";
 
+const urlDoctores = "http://localhost:3000/api/doctores";
+
 export const Citas = () => {
   const [formData, setFormData] = useState({
     fecha_hora: '',
@@ -64,10 +66,26 @@ export const Citas = () => {
       setData([]);
     }
   };
+  
+  const [doctores, setDoctores] = useState([]);
+  const cargarDoctores = async () => {
+    try {
+      const response = await fetch(urlDoctores);
+      if (response.ok) {
+        const data = await response.json();
+        setDoctores(data);  
+      } else {
+        console.error("Error al cargar doctores");
+      }
+    } catch (error) {
+      console.error("Error al cargar doctores", error);
+    }
+};
 
   useEffect(() => {
     console.log("Se invocó el useEffect");
     getCitas();
+    cargarDoctores();
   }, []);
 
 
@@ -101,12 +119,17 @@ return (
 
               <Form.Group>
                 <Form.Label>ID del Doctor</Form.Label>
-                <Form.Control 
-                  type='number' 
-                  name='doctor_id'
-                  value={formData.doctor_id}
-                  onChange={cambioData}
-                />
+                <Form.Control
+    as="select"
+    name='doctor_id' 
+    value={formData.doctor_id}
+    onChange={cambioData}
+>
+    <option value="" disabled>Seleccione un doctor</option>
+    {doctores.map(doctor => (
+        <option key={doctor.id} value={doctor.id}>{doctor.nombre} - {doctor.id}</option>
+    ))}
+</Form.Control>
               </Form.Group>
 
               <Form.Group>
