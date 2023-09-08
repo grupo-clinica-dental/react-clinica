@@ -32,6 +32,7 @@ var url = "http://localhost:3000/api/especialidades";
             if (response.ok) {
                 const responsebody = await response.json()
                 getDatos();
+                formData.nombre = '';
             }else{
                 const responsebody = await response.json()
                 

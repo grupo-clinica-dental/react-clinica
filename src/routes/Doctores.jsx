@@ -32,6 +32,8 @@ var url = "http://localhost:3000/api/doctores";
                 const responsebody = await response.json()
                 getDatos();
                 formData.nombre = '';
+                formData.correo_electronico = '';
+                formData.color = '';
             }else{
                 const responsebody = await response.json()
                 console.log(responsebody);
