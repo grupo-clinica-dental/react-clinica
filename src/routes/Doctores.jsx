@@ -30,7 +30,8 @@ var url = "http://localhost:3000/api/doctores";
             });
             if (response.ok) {
                 const responsebody = await response.json()
-                getDatos()
+                getDatos();
+                formData.nombre = '';
             }else{
                 const responsebody = await response.json()
                 console.log(responsebody);
@@ -96,7 +97,7 @@ var url = "http://localhost:3000/api/doctores";
                         <tr key = {item.id}>
                            <td>{item.nombre}</td> 
                            <td>{item.correo_electronico}</td>
-                           <td>{item.color}</td>
+                           <td style={{ backgroundColor: `${item.color}` } } >   </td>
                            
                         </tr>
                     ))}
