@@ -1,24 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
 
-const apiUrl = "http://localhost:3000/api/permisos"; 
+const apiUrl = "http://localhost:3000/api/permisos";
 const rolesUrl = "http://localhost:3000/api/roles";
-const rutasUrl = "http://localhost:3000/api/rutas"; // Nueva URL para obtener nombres de rutas
+const rutasUrl = "http://localhost:3000/api/rutas";
 
 export const Permisos = () => {
   const [envio, setEnvio] = useState(0);
 
   const [formData, setFormData] = useState({
-    id_ruta: '', // Cambiamos el campo a "id_ruta"
+    nombre_ruta: '',
     nombre_rol: '',
-    activa: true,
+    activa: false,
     fecha_borrado: null,
   });
-
-  const [showModal, setShowModal] = useState(false);
-
-  const handleClose = () => setShowModal(false);
-  const handleShow = () => setShowModal(true);
 
   const cambioData = (event) => {
     const { name, value } = event.target;
@@ -55,22 +50,21 @@ export const Permisos = () => {
 
   const [data, setData] = useState([]);
   const [roles, setRoles] = useState([]);
-  const [rutas, setRutas] = useState([]); // Estado para almacenar los nombres de las rutas
+  const [rutas, setRutas] = useState([]);
 
   useEffect(() => {
     fetch(rolesUrl)
       .then((response) => response.json())
-      .then((data) => setRoles(data.roles.map((rol) => rol.Nombre)))
+      .then((data) => setRoles(data.roles.map((rol) => rol.nombre_rol)))
       .catch((error) => console.error(error));
   }, []);
 
   useEffect(() => {
-    // Realiza una solicitud para obtener solo los nombres de las rutas desde tu API
     fetch(rutasUrl)
       .then((response) => response.json())
-      .then((data) => setRutas(data.rutas.map((ruta) => ruta.Nombre))) // Extrae los nombres de las rutas
+      .then((data) => setRutas(data.rutas.map((ruta) => ruta.string_ruta)))
       .catch((error) => console.error(error));
-  }, []); // Se ejecuta una vez al montar el componente
+  }, []);
 
   useEffect(() => {
     fetch(apiUrl, {
@@ -91,7 +85,7 @@ export const Permisos = () => {
           <div className="col-md-12">
           </div>
         </div>
-        
+
         <div className="row">
           <div className="col-md-8 offset-md-2">
             <div className="card">
@@ -103,15 +97,15 @@ export const Permisos = () => {
                   <Form.Group>
                     <Form.Label>Ruta</Form.Label>
                     <Form.Control
-                      as="select"
-                      name="id_ruta"
-                      value={formData.id_ruta}
+                      as="select" 
+                      name="string_ruta"
+                      value={formData.string_ruta}
                       onChange={cambioData}
                     >
                       <option value="">Selecciona una Ruta</option>
-                      {rutas.map((nombreRuta, index) => (
-                        <option key={index} value={nombreRuta}>
-                          {nombreRuta}
+                      {rutas.map((ruta, index) => (
+                        <option key={index} value={ruta}>
+                          {ruta}
                         </option>
                       ))}
                     </Form.Control>
@@ -120,15 +114,15 @@ export const Permisos = () => {
                   <Form.Group>
                     <Form.Label>Nombre del Rol</Form.Label>
                     <Form.Control
-                      as="select"
+                      as="select" 
                       name="nombre_rol"
                       value={formData.nombre_rol}
                       onChange={cambioData}
                     >
                       <option value="">Selecciona un Rol</option>
-                      {roles.map((nombreRol, index) => (
-                        <option key={index} value={nombreRol}>
-                          {nombreRol}
+                      {roles.map((rol, index) => (
+                        <option key={index} value={rol}>
+                          {rol}
                         </option>
                       ))}
                     </Form.Control>
@@ -170,7 +164,7 @@ export const Permisos = () => {
                 {data.map(item => (
                   <tr key={item.id}>
                     <td>{item.id}</td>
-                    <td>{item.id_ruta}</td>
+                    <td>{item.nombre_ruta}</td>
                     <td>{item.nombre_rol}</td>
                     <td>{item.activa ? 'Sí' : 'No'}</td>
                     <td>{item.fecha_borrado ? item.fecha_borrado : 'N/A'}</td>

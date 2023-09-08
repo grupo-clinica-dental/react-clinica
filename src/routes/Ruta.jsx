@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
 
-const apiUrl = "http://localhost:3000/api/rutas"; // Cambia la URL a la de tu API de rutas
+const apiUrl = "http://localhost:3000/api/rutas";
 
 export const Rutas = () => {
   const [envio, setEnvio] = useState(0);
 
   const [formData, setFormData] = useState({
     string_ruta: '',
-    activa: true, // Por defecto, establecemos que la ruta está activa
-    fecha_borrado: null, // Inicialmente, no hay fecha de borrado
+    activa: true,
+    fecha_borrado: null,
   });
-
-  const [showModal, setShowModal] = useState(false);
-
-  const handleClose = () => setShowModal(false);
-  const handleShow = () => setShowModal(true);
 
   const cambioData = (event) => {
     const { name, value } = event.target;
@@ -52,17 +47,27 @@ export const Rutas = () => {
 
   const [data, setData] = useState([]);
 
-  useEffect(() => {
-    fetch(apiUrl, {
+  const obtenerDatos = () => {
+    fetch("http://localhost:3000/api/rutas", { 
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     })
       .then((response) => response.json())
-      .then((data) => setData(data.rutas))
+      .then((data) => {
+        if (data.rutas) {
+          setData(data.rutas);
+        } else {
+          console.error("No se recibieron datos de rutas desde la API");
+        }
+      })
       .catch((error) => console.error(error));
-  }, [envio]);
+  };
+
+  useEffect(() => {
+    obtenerDatos(); // Llama a la función para obtener los datos cuando se monta el componente.
+  }, []);
 
   return (
     <>
@@ -71,9 +76,9 @@ export const Rutas = () => {
           <div className="col-md-12">
           </div>
         </div>
-        
+
         <div className="row">
-          <div className="col-md-8 offset-md-2">
+          <div className="col-md-10 offset-md-1">
             <div className="card">
               <div className="card-header">
                 Formulario de Registro de Ruta
@@ -81,9 +86,9 @@ export const Rutas = () => {
               <div className="card-body">
                 <Form onSubmit={enviarDatos}>
                   <Form.Group>
-                    <Form.Label>String de Ruta</Form.Label>
-                    <Form.Control 
-                      type='text' 
+                    <Form.Label>Nombre de Ruta</Form.Label>
+                    <Form.Control
+                      type='text'
                       name='string_ruta'
                       value={formData.string_ruta}
                       onChange={cambioData}
@@ -116,20 +121,26 @@ export const Rutas = () => {
               <thead>
                 <tr>
                   <th>#Ruta</th>
-                  <th>String de Ruta</th>
+                  <th>Nombre de Ruta</th>
                   <th>Ruta Activa</th>
                   <th>Fecha de Borrado</th>
                 </tr>
               </thead>
               <tbody>
-                {data.map(item => (
-                  <tr key={item.id}>
-                    <td>{item.id}</td>
-                    <td>{item.string_ruta}</td>
-                    <td>{item.activa ? 'Sí' : 'No'}</td>
-                    <td>{item.fecha_borrado ? item.fecha_borrado : 'N/A'}</td>
+                {data ? (
+                  data.map(item => (
+                    <tr key={item.id}>
+                      <td>{item.id}</td>
+                      <td>{item.string_ruta}</td>
+                      <td>{item.activa ? 'Sí' : 'No'}</td>
+                      <td>{item.fecha_borrado ? item.fecha_borrado : 'N/A'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4">Cargando data...</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </Table>
           </div>
@@ -140,3 +151,4 @@ export const Rutas = () => {
 };
 
 export default Rutas;
+
