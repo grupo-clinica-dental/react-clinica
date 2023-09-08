@@ -83,7 +83,7 @@ export default function Root() {
                 </li>
 
                 <li key={router.path}>
-                  <Link to={`/Ruta`}>
+                  <Link to={`/Rutas`}>
                   Rutas
                   </Link>
                 </li>

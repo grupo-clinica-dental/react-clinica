@@ -71,7 +71,7 @@ export const router = createBrowserRouter([
         action: rootAction,
       },
       {
-        path: "/Ruta", 
+        path: "/Rutas", 
         element: <Rutas />, 
         name: 'Rutas', 
         errorElement: <ErrorPage />,
