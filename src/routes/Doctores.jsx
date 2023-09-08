@@ -30,10 +30,7 @@ var url = "http://localhost:3000/api/doctores";
             });
             if (response.ok) {
                 const responsebody = await response.json()
-                getDatos();
-                formData.nombre = '';
-                formData.correo_electronico = '';
-                formData.color = '';
+                getDatos()
             }else{
                 const responsebody = await response.json()
                 console.log(responsebody);
@@ -80,7 +77,7 @@ var url = "http://localhost:3000/api/doctores";
                     <Form.Label>Color</Form.Label>
                     <Form.Control type='color' name='color' value={formData.color} onChange={cambiodata}/>
                 </Form.Group>
-                <br></br>
+
                 <Button variant='primary' type='submit'>Enviar Datos</Button>
 
             </Form>
@@ -92,8 +89,6 @@ var url = "http://localhost:3000/api/doctores";
                         <th>Nombre</th>
                         <th>Correo Electronico</th>
                         <th>Color</th>
-                        <th></th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -101,9 +96,8 @@ var url = "http://localhost:3000/api/doctores";
                         <tr key = {item.id}>
                            <td>{item.nombre}</td> 
                            <td>{item.correo_electronico}</td>
-                           <td style={{ backgroundColor: `${item.color}` } } >   </td>
-                           <td><button type="button" class="btn btn-warning">Actualizar</button></td>
-                           <td><button type="button" class="btn btn-danger">Eliminar</button></td>
+                           <td>{item.color}</td>
+                           
                         </tr>
                     ))}
                 </tbody>
