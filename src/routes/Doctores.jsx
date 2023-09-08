@@ -80,7 +80,7 @@ var url = "http://localhost:3000/api/doctores";
                     <Form.Label>Color</Form.Label>
                     <Form.Control type='color' name='color' value={formData.color} onChange={cambiodata}/>
                 </Form.Group>
-
+                <br></br>
                 <Button variant='primary' type='submit'>Enviar Datos</Button>
 
             </Form>
