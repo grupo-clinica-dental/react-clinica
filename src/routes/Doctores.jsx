@@ -92,6 +92,8 @@ var url = "http://localhost:3000/api/doctores";
                         <th>Nombre</th>
                         <th>Correo Electronico</th>
                         <th>Color</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,7 +102,8 @@ var url = "http://localhost:3000/api/doctores";
                            <td>{item.nombre}</td> 
                            <td>{item.correo_electronico}</td>
                            <td style={{ backgroundColor: `${item.color}` } } >   </td>
-                           
+                           <td><button type="button" class="btn btn-warning">Actualizar</button></td>
+                           <td><button type="button" class="btn btn-danger">Eliminar</button></td>
                         </tr>
                     ))}
                 </tbody>
