@@ -32,6 +32,7 @@ var url = "http://localhost:3000/api/especialidades";
             if (response.ok) {
                 const responsebody = await response.json()
                 getDatos();
+                formData.nombre = '';
             }else{
                 const responsebody = await response.json()
                 
@@ -70,7 +71,7 @@ var url = "http://localhost:3000/api/especialidades";
                     <Form.Label>Nombre Especialidad</Form.Label>
                     <Form.Control type='text' name='nombre' value={formData.nombre} onChange={cambiodata}/>
                 </Form.Group>
-                
+                <br></br>
                 <Button variant='primary' type='submit'>Enviar Datos</Button>
 
             </Form>
