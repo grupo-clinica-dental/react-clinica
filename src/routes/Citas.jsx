@@ -67,6 +67,30 @@ export const Citas = () => {
     }
   };
   
+  const actualizarFormulario = (item) => {
+    setFormData(item);
+  }
+  
+  const eliminarCita = async (id) => {
+    try {
+      const response = await fetch(`${url}/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (response.ok) {
+        getCitas(); 
+      } else {
+        const responseBody = await response.json();
+        console.error("Error al eliminar la cita:", responseBody);
+      }
+    } catch (error) {
+      console.error("Error al eliminar la cita:", error);
+    }
+  }
+
   const [doctores, setDoctores] = useState([]);
   const cargarDoctores = async () => {
     try {
@@ -216,6 +240,7 @@ return (
               <th>Ubicación</th>
               <th>Descripción</th>
               <th>Notas</th>
+              <th colSpan={2}>Accion</th>
             </tr>
           </thead>
           <tbody>
@@ -230,6 +255,8 @@ return (
                 <td>{item.ubicacion}</td>
                 <td>{item.descripcion}</td>
                 <td>{item.notas}</td>
+                <td><Button  onClick={() => actualizarFormulario(item)}>Actualizar</Button></td>
+                <td><Button  onClick={() => eliminarCita(item.id)}>Eliminar</Button></td>
               </tr>
             ))}
           </tbody>

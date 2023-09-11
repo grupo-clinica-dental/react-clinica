@@ -145,9 +145,12 @@ export const Pacientes = () => {
     setFormData(arreglo);
 
   }
+ 
+
+ 
 
 
-  seEffect(() => {
+  useEffect(() => {
 
     console.log("Se invoco el use Effect")
     getDatos()
