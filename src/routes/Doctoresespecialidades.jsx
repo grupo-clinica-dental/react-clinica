@@ -89,7 +89,12 @@
           setFormData({
             doctor_id: '',
             especialidad_id: '',
+            
+     
           });
+
+        
+
         } else {
           const responseBody = await response.json();
           alert("Error al insertar: " + responseBody.message);

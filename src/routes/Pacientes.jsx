@@ -13,7 +13,10 @@ export const Pacientes = () => {
     email: '',
     fecha_nacimiento: ''
   });
-
+  const [state, setstate] = useState({
+    error: null,
+    success: null
+  });
 
   const resetFormData = () => {
     setFormData({
@@ -75,15 +78,40 @@ export const Pacientes = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-
+        setstate({
+          ...state, success: true
+        });
+        setTimeout(() => {
+          setstate({
+            ...state, success: '' 
+  
+          });
+        }, 2000)
         getDatos();
         resetFormData();
       } else {
         const responseBody = await response.json();
-
+        setstate({
+          ...state, success: true
+        });
+        setTimeout(() => {
+          setstate({
+            ...state, success: '' 
+  
+          });
+        }, 2000)
       }
     } catch (error) {
       console.error("Error al enviar datos", error);
+      setstate({
+        ...state, error:"Error al enviar datos"
+      });
+      setTimeout(() => {
+        setstate({
+          ...state, error: '' 
+
+        });
+      }, 2000)
     }
 
   }
@@ -190,6 +218,8 @@ export const Pacientes = () => {
         
               <div className="card-body">
                 <Form onSubmit={enviarDatos}>
+{state.error ? <div className="notificacion error">{state.error}</div> : null }
+    {state.success ? <div className="notificacion success">Usuario creado con exito</div> : null }
 
                   <Form.Group>
 
