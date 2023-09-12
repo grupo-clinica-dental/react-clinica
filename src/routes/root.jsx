@@ -87,6 +87,12 @@ export default function Root() {
                   Rutas
                   </Link>
                 </li>
+
+                <li key={router.path}>
+                  <Link to={`/DoctoresEspecialidades`}>
+                  Doctores Especialidades
+                  </Link>
+                </li>
             </ul>
           </nav>
         </div>

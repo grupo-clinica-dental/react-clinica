@@ -11,6 +11,7 @@ import Doctores from "./routes/Doctores";
 import Paciente from "./routes/Pacientes";
 import Citas from "./routes/Citas";
 import Especialidades from "./routes/Especialidades";
+import DoctoresEspecialidades from "./routes/Doctoresespecialidades";
 import Root, { loader as rootLoader,   action as rootAction, } from "./routes/root";
 import Usuarios from "./routes/Usuarios";
 import Roles from "./routes/Roles";
@@ -90,6 +91,14 @@ export const router = createBrowserRouter([
         path: "/Especialidades", 
         element: <Especialidades />, 
         name: 'Especialidades', 
+        errorElement: <ErrorPage />,
+        loader: rootLoader,
+        action: rootAction,
+      },
+      {
+        path: "/DoctoresEspecialidades", 
+        element: <DoctoresEspecialidades />, 
+        name: 'DoctoresEspecialidades', 
         errorElement: <ErrorPage />,
         loader: rootLoader,
         action: rootAction,
