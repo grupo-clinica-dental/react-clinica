@@ -15,6 +15,18 @@ export const Pacientes = () => {
   });
 
 
+  const resetFormData = () => {
+    setFormData({
+      id: '',
+      nombre: '',
+      telefono: '',
+      email: '',
+      fecha_nacimiento: ''
+    });
+  };
+  
+
+
   const cambioData = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
@@ -43,12 +55,12 @@ export const Pacientes = () => {
     } else {
 
       setDatos([]);
-
+      resetFormData();
     }
 
 
   }
-
+ 
 
   const enviarDataPost = async () => {
 
@@ -65,7 +77,7 @@ export const Pacientes = () => {
         const responseData = await response.json();
 
         getDatos();
-
+        resetFormData();
       } else {
         const responseBody = await response.json();
 
@@ -91,7 +103,7 @@ export const Pacientes = () => {
         const responseData = await response.json();
 
         getDatos();
-
+        resetFormData();
       } else {
         const responseBody = await response.json();
 
@@ -115,7 +127,7 @@ export const Pacientes = () => {
       if (response.ok) {
         const responseData = await response.json();
         getDatos();
-
+        resetFormData();
       } else {
         const responseBody = await response.json();
 
@@ -126,7 +138,19 @@ export const Pacientes = () => {
 
   }
 
-
+  function actualizarForm(item) {
+    resetFormData(); 
+  
+    let arreglo = {
+      id: item.id,
+      nombre: item.nombre,
+      telefono: item.telefono,
+      email: item.email,
+      fecha_nacimiento: item.fecha_nacimiento
+    };
+    setFormData(arreglo);
+  }
+  
 
   function actualizarForm(item) {
 
@@ -275,3 +299,5 @@ export const Pacientes = () => {
 }
 
 export default Pacientes;
+
+

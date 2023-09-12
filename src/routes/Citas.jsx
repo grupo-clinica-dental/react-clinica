@@ -17,6 +17,21 @@ export const Citas = () => {
     notas: ''
   });
 
+  const resetForm = () => {
+    setFormData({
+      fecha_hora: '',
+      doctor_id: '',
+      paciente_id: '',
+      estado_id: '',
+      google_calendar_event_id: '',
+      ubicacion: '',
+      descripcion: '',
+      notas: ''
+    });
+  };
+  
+
+
   const cambioData = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
@@ -39,6 +54,7 @@ export const Citas = () => {
         console.log("Datos Enviados");
         console.log(responseData);
         getCitas(); 
+        resetForm();
       } else {
         const responseBody = await response.json();
         console.log("Error al enviar datos");
@@ -69,6 +85,7 @@ export const Citas = () => {
   
   const actualizarFormulario = (item) => {
     setFormData(item);
+    resetForm(item);
   }
   
   const eliminarCita = async (id) => {
