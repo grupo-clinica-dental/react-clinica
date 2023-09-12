@@ -10,6 +10,20 @@ const Doctores = () => {
     color: "",
   });
 
+  const [state, setstate] = useState({
+    error: null,
+    success: null,
+  });
+
+  const resetFormData = () => {
+    useFormData({
+      id: "",
+      nombre: "",
+      correo_electronico: "",
+      color: "",
+    });
+  };
+
   const cambiodata = (event) => {
     const { name, value } = event.target;
     useFormData({ ...formData, [name]: value });
@@ -17,6 +31,12 @@ const Doctores = () => {
 
   const Enviardatos = async (event) => {
     event.preventDefault();
+
+    /*if (formData.id) {
+      enviarDataPUT();
+    }else{
+      enviarDataPost();
+    }*/
 
     try {
       const response = await fetch(url, {
@@ -28,19 +48,192 @@ const Doctores = () => {
       });
       if (response.ok) {
         const responsebody = await response.json();
+
+        setstate({
+          ...state,
+          success: true,
+        });
+        setTimeout(() => {
+          setstate({
+            ...state,
+            success: "",
+          });
+        }, 2000);
         getDatos();
+        resetFormData();
         formData.nombre = "";
         formData.correo_electronico = "";
         formData.color = "";
       } else {
         const responsebody = await response.json();
+       
+        setstate({
+          ...state,
+          error: "habia un error.",
+        });
+        setTimeout(() => {
+          setstate({
+            ...state,
+            error: "",
+          });
+        }, 2000);
+
         console.log(responsebody);
       }
     } catch (error) {
+      setstate({
+        ...state,
+        error: "Error en enviar los datos.",
+      });
+      setTimeout(() => {
+        setstate({
+          ...state,
+          error: "",
+        });
+      }, 2000);
       console.error("Error en enviar los datos", datos);
     }
   };
 
+  const enviarDataPUT = async () => {
+    try {
+      const response = await fetch(url + '/' + formData.id, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      if (response.ok) {
+        const responsebody = await response.json();
+
+        setstate({
+          ...state,
+          success: true,
+        });
+        setTimeout(() => {
+          setstate({
+            ...state,
+            success: "",
+          });
+        }, 2000);
+        getDatos();
+        resetFormData();
+        formData.nombre = "";
+        formData.correo_electronico = "";
+        formData.color = "";
+      } else {
+        const responsebody = await response.json();
+       
+        setstate({
+          ...state,
+          error: "habia un error.",
+        });
+        setTimeout(() => {
+          setstate({
+            ...state,
+            error: "",
+          });
+        }, 2000);
+
+        console.log(responsebody);
+      }
+    } catch (error) {
+      setstate({
+        ...state,
+        error: "Error en enviar los datos.",
+      });
+      setTimeout(() => {
+        setstate({
+          ...state,
+          error: "",
+        });
+      }, 2000);
+      console.error("Error en enviar los datos", datos);
+    }
+
+  }
+
+  async function enviarDataDelete(item){
+    try {
+      const response = await fetch(url + '/' + formData.id, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      if (response.ok) {
+        const responsebody = await response.json();
+
+        setstate({
+          ...state,
+          success: true,
+        });
+        setTimeout(() => {
+          setstate({
+            ...state,
+            success: "",
+          });
+        }, 2000);
+        getDatos();
+        resetFormData();
+        formData.nombre = "";
+        formData.correo_electronico = "";
+        formData.color = "";
+      } else {
+        const responsebody = await response.json();
+       
+        setstate({
+          ...state,
+          error: "habia un error.",
+        });
+        setTimeout(() => {
+          setstate({
+            ...state,
+            error: "",
+          });
+        }, 2000);
+
+        console.log(responsebody);
+      }
+    } catch (error) {
+      setstate({
+        ...state,
+        error: "Error en enviar los datos.",
+      });
+      setTimeout(() => {
+        setstate({
+          ...state,
+          error: "",
+        });
+      }, 2000);
+      console.error("Error en enviar los datos", datos);
+    }
+
+  }
+
+  function actualizarForm(item){
+    resetFormData();
+    let arreglo = {
+      id: item.id,
+      nombre: item.nombre,
+      correo_electronico: item.correo_electronico,
+      color: item.color,
+    }
+    useFormData(arreglo);
+  }
+
+  function actualizarForm(item){
+    resetFormData();
+    let arreglo = {
+      id: item.id,
+      nombre: item.nombre,
+      correo_electronico: item.correo_electronico,
+      color: item.color,
+    }
+    useFormData(arreglo);
+  }
   const [Data, useData] = useState([]);
 
   const getDatos = async () => {
@@ -49,6 +242,8 @@ const Doctores = () => {
 
     if (response.ok) {
       useData(responseData);
+    }else{
+      resetFormData();
     }
   };
 
@@ -56,13 +251,30 @@ const Doctores = () => {
     getDatos();
   }, []);
 
-  
-  
+
+
 
   return (
     <>
+      {state.error ? (
+        <div className="notificacion error">{state.error}</div>
+      ) : null}
+      {state.success ? (
+        <div className="notificacion success">Doctor creado fue un exicto</div>
+      ) : null}
+
       <h2> Doctores</h2>
       <Form onSubmit={Enviardatos}>
+        <Form.Group>
+        <Form.Control
+            type="text"
+            name="id"
+            value={formData.id}
+            onChange={cambiodata}
+          />
+        </Form.Group>
+
+
         <Form.Group>
           <Form.Label>Nombre</Form.Label>
           <Form.Control
@@ -114,10 +326,12 @@ const Doctores = () => {
               <td>{item.correo_electronico}</td>
               <td style={{ backgroundColor: `${item.color}` }}> </td>
               <td>
-                <button type="button" class="btn btn-warning" >Actualizar</button>
+                <button type="button" class="btn btn-warning" onClick={() => actualizarForm(item)}>
+                  Actualizar
+                </button>
               </td>
               <td>
-                <button type="button" class="btn btn-danger">
+                <button type="button" class="btn btn-danger" onClick={() => enviarDataDelete(item)}>
                   Eliminar
                 </button>
               </td>
