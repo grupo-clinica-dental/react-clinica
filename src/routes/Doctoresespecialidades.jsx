@@ -10,6 +10,10 @@
       doctor_id: '',
       especialidad_id: '',
     });
+    const [state, setstate] = useState({
+      error: null,
+      success: null
+    });
 
     const [relaciones, setRelaciones] = useState([]);
     const [doctores, setDoctores] = useState([]);
@@ -85,7 +89,15 @@
 
         
         if (response.ok) {
-          alert("Registro insertado con éxito");
+          setstate({
+            ...state, success: true
+          });
+          setTimeout(() => {
+            setstate({
+              ...state, success: '' 
+    
+            });
+          }, 2000)
           setFormData({
             doctor_id: '',
             especialidad_id: '',
@@ -97,11 +109,28 @@
 
         } else {
           const responseBody = await response.json();
-          alert("Error al insertar: " + responseBody.message);
+          setstate({
+            ...state, success: true
+          });
+          setTimeout(() => {
+            setstate({
+              ...state, success: '' 
+    
+            });
+          }, 2000)
+          
         }
       } catch (error) {
         console.error("Error al enviar datos", error);
-        alert("Error al enviar datos");
+        setstate({
+          ...state, error:"Error al enviar datos"
+        });
+        setTimeout(() => {
+          setstate({
+            ...state, error: '' 
+  
+          });
+        }, 2000)
       }
   }
 
@@ -111,6 +140,9 @@
 <h2 > Registro Relacion Doctor y Especialidad</h2>
       <div className="container mt-2">
         <Form onSubmit={enviarDataPost}>
+        {state.error ? <div className="notificacion error">{state.error}</div> : null }
+    {state.success ? <div className="notificacion success">Usuario creado con exito</div> : null }
+
           <Form.Group>
             <Form.Label>Doctor</Form.Label>
             <Form.Control as="select" name='doctor_id' value={formData.doctor_id} onChange={cambioData} required>
