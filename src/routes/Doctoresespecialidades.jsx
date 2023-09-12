@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button } from 'react-bootstrap';
 
-const url = "http://localhost:3000/api/doctor_especialidades";
+const url = "http://localhost:3000/api/doctoresEspecialidades";
 const urlDoctores = "http://localhost:3000/api/doctores";
 const urlEspecialidades = "http://localhost:3000/api/especialidades";
 
@@ -113,6 +113,7 @@ export const DoctoresEspecialidades = () => {
 }
 
 export default DoctoresEspecialidades;
+
 
 
 
