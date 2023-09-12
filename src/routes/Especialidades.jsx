@@ -28,11 +28,11 @@ const especialidades = () => {
   const Enviardatos = async (event) => {
     event.preventDefault();
 
-    if (formData.id) {
+    /*if (formData.id) {
         enviarDataPUT();
       }else{
         enviarDataPost();
-      }
+      }*/
 
     try {
       const response = await fetch(url, {
