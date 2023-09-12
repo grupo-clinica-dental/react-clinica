@@ -386,12 +386,22 @@ i {
   justify-content: center;
   align-items: center;
   background-color: #f7f7f7;
-  color: #f44250;
   border-radius: 1rem;
   width: fit-content;
   padding: 1em 3em;
-  border: 2px solid #f44250;
+  border: 2px;
   position: fixed;
   right: 5rem;
   top: 2rem;
 }
+
+.notificacion.success {
+  border-color: green;
+  color: green;
+}
+
+.notificacion.error {
+  border-color: red;
+  color: red;
+}
+

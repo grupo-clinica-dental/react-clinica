@@ -14,7 +14,8 @@ export const Usuarios = () => {
   });
 
   const [state, setstate] = useState({
-    error: ''
+    error: null,
+    success: null
   });
 
   const handleChange = (event) => {
@@ -36,8 +37,21 @@ export const Usuarios = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log("Datos Enviados");
-        console.log(JSON.stringify(responseData));
+        setstate({...state, success: responseData.message})
+
+        setFormData({
+          nombre: "",
+          telefono: "",
+          email: "",
+          fecha_nacimiento: "",
+          password: "",
+          secondPassword: "",
+        })
+
+        setTimeout(() => {
+          setstate({...state, success:null})
+        } , 2000)
+
         fetch(url, {
           method: "GET",
           headers: {
@@ -49,16 +63,14 @@ export const Usuarios = () => {
           .catch((error) => console.error(error));
       } else {
         const responseBody = await response.json();
-        console.log("Error al enviar datos");
-        console.log(responseBody);
 
         setstate({...state, error: responseBody.message})
         setTimeout(() => {
-          setstate({...state, error: ''})
+          setstate({...state, error: null})
         }, 2000);
       }
     } catch (error) {
-      console.error("Error al enviar datos", error);
+      setstate({...state, error: 'Ha ocurrido un error'})
     }
   };
 
@@ -85,7 +97,8 @@ export const Usuarios = () => {
       <h1>Usuarios</h1>
 
       <Form onSubmit={handleSubmit}>
-    {state.error ? <div className="notificacion">{state.error}</div> : null }
+    {state.error ? <div className="notificacion error">{state.error}</div> : null }
+    {state.success ? <div className="notificacion success">Usuario creado con exito</div> : null }
 
         <Form.Group>
           <Form.Label>Nombre</Form.Label>
