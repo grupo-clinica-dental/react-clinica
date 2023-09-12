@@ -185,19 +185,9 @@ export const Pacientes = () => {
 
   return (
     <>
+    <h2> Registro de Pacientes</h2>
       <div className="container mt-2">
-        <div className="row">
-          <div className="col-md-12">
-
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-md-8 offset-md-2">
-            <div className="card">
-              <div className="card-header">
-                Formulario de Registro
-              </div>
+        
               <div className="card-body">
                 <Form onSubmit={enviarDatos}>
 
@@ -253,14 +243,14 @@ export const Pacientes = () => {
                     />
                   </Form.Group>
 
-                  <div className="d-flex justify-content-end">
+                  <div className="d-flex justify-content-end mt-3">
                     <Button variant='primary' type='submit'>Enviar Datos</Button>
                   </div>
                 </Form>
               </div>
             </div>
-          </div>
-        </div>
+          
+        
 
         <div className="row mt-5">
           <div className="col-md-12">
@@ -292,7 +282,7 @@ export const Pacientes = () => {
             </Table>
           </div>
         </div>
-      </div>
+      
     </>
 
   );
