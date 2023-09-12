@@ -132,7 +132,9 @@ export const Citas = () => {
 
 return (
   <>
+  
   <div className="container mt-2">
+  
     <div className="row">
       <div className="col-md-12">
         
@@ -233,7 +235,7 @@ return (
                 />
               </Form.Group>
 
-              <div className="d-flex justify-content-end">
+              <div className="d-flex justify-content-end mt-3">
                 <Button variant='primary' type='submit'>Enviar Datos</Button>
               </div>
             </Form>
