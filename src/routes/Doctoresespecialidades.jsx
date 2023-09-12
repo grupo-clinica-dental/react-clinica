@@ -11,7 +11,7 @@ export const DoctoresEspecialidades = () => {
     especialidad_id: '',
   });
 
-  // Estados para almacenar las listas de doctores y especialidades
+  
   const [doctores, setDoctores] = useState([]);
   const [especialidades, setEspecialidades] = useState([]);
 
@@ -49,7 +49,7 @@ export const DoctoresEspecialidades = () => {
       }
     };
 
-    // Llamamos a las funciones para obtener los datos
+   
     fetchDoctores();
     fetchEspecialidades();
   }, []);
@@ -58,16 +58,16 @@ export const DoctoresEspecialidades = () => {
     event.preventDefault();
 
     try {
-      // Realiza la solicitud POST al servidor
+     
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)  // Convertimos los datos del formulario a JSON
+        body: JSON.stringify(formData) 
       });
 
-      // Validamos la respuesta
+      
       if (response.ok) {
         alert("Registro insertado con éxito");
         setFormData({
