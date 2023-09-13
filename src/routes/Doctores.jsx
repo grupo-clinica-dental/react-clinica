@@ -20,7 +20,7 @@ const Doctores = () => {
       id: "",
       nombre: "",
       correo_electronico: "",
-      color: "",
+      color: ""
     });
   };
 
@@ -69,7 +69,7 @@ const Doctores = () => {
         resetFormData();
         formData.nombre = "";
         formData.correo_electronico = "";
-        formData.color = "";
+        formData.color = ""
       } else {
         const responsebody = await response.json();
        
@@ -200,6 +200,7 @@ const Doctores = () => {
       useData(responseData);
       
     }else{
+      useData([]);
       resetFormData();
     }
   };

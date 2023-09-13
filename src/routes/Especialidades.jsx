@@ -117,18 +117,19 @@ const especialidades = () => {
   async function enviarDataDelete(item){
     try {
         const response = await fetch(url + '/' + item.id, {
-          method: "DELETE",
+          method: 'DELETE',
           headers: {
-            "Content-Type": "application/json",
-          },
+            'Content-Type': "application/json",
+          }
           
         });
+
         if (response.ok) {
           const responsebody = await response.json();
           
           getDatos();
           resetFormData();
-          formData.nombre = "";
+          
         } else {
           const responsebody = await response.json();
           
@@ -166,7 +167,8 @@ const especialidades = () => {
     if (response.ok) {
       useData(responseData);
     }else{
-        resetFormData();
+      useData([]);
+      resetFormData();
     }
   };
 
