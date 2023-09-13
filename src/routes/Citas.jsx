@@ -6,7 +6,7 @@ import { Form, Button, Table } from 'react-bootstrap';
 const url = "http://localhost:3000/api/citas";
 const urlDoctores = "http://localhost:3000/api/doctores";
 const urlEstados = "http://localhost:3000/api/estadoCita";
-
+const urlPacientes = "http://localhost:3000/api/pacientes";
 
 export const Citas = () => {
   const [formData, setFormData] = useState({
@@ -57,6 +57,7 @@ export const Citas = () => {
 
   const [doctores, setDoctores] = useState([]);
   const [estados, setEstados] = useState([]);
+  const [pacientes, setPacientes] = useState([]);
 
   const enviarDataPost = async () => {
     try {
@@ -142,6 +143,21 @@ export const Citas = () => {
     resetFormData();
     setFormData(cita);
   }
+  const fetchPacientes = async () => {
+    try {
+      const response = await fetch(urlPacientes);
+      const data = await response.json();
+  
+      if (Array.isArray(data.item_paciente)) {
+        setPacientes(data.item_paciente);
+      } else {
+        console.error("La respuesta del servidor no es un arreglo");
+      }
+    } catch (error) {
+      console.error("Error obteniendo pacientes:", error);
+    }
+  };
+  
 
   useEffect(() => {
     const fetchDoctores = async () => {
@@ -165,6 +181,7 @@ export const Citas = () => {
     };
     fetchDoctores();
     fetchEstados();
+    fetchPacientes();
     getCitas();
 
   }, []);
@@ -198,16 +215,14 @@ export const Citas = () => {
         </Form.Group>
 
 
-            <Form.Group>
-              <Form.Label>ID Paciente</Form.Label>
-              <Form.Control
-                type="number"
-                name="paciente_id"
-                value={formData.paciente_id}
-                onChange={handleInputChange}
-                placeholder="Ingresa el ID del paciente"
-              />
-            </Form.Group>
+        <Form.Group>
+  <Form.Label>ID Paciente</Form.Label>
+  <Form.Control as="select" name='paciente_id' value={formData.paciente_id} onChange={handleInputChange} required>
+    <option value=''>Seleccione un paciente</option>
+    {pacientes.map(paciente => <option key={paciente.id} value={paciente.id}>{paciente.nombre}</option>)}
+  </Form.Control>
+</Form.Group>
+
 
             <Form.Group>
           <Form.Label>ID Estado</Form.Label>
