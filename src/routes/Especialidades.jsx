@@ -28,12 +28,16 @@ const especialidades = () => {
   const Enviardatos = async (event) => {
     event.preventDefault();
 
-    /*if (formData.id) {
+    if (formData.id) {
         enviarDataPUT();
       }else{
         enviarDataPost();
-      }*/
+      }
 
+    
+  };
+
+  const enviarDataPost = async (event) => {
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -82,7 +86,7 @@ const especialidades = () => {
           }, 2000);  
       console.error("Error en enviar los datos", datos);
     }
-  };
+  }
 
   const enviarDataPUT = async () => {
     try {
@@ -95,43 +99,16 @@ const especialidades = () => {
         });
         if (response.ok) {
           const responsebody = await response.json();
-          setstate({
-              ...state,
-              success: true,
-            });
-            setTimeout(() => {
-              setstate({
-                ...state,
-                success: "",
-              });
-            }, 2000);
+          
           getDatos();
           resetFormData();
           formData.nombre = "";
         } else {
           const responsebody = await response.json();
-          setstate({
-              ...state,
-              error: "habia un error",
-            });
-            setTimeout(() => {
-              setstate({
-                ...state,
-                error: "",
-              });
-            }, 2000);
+          
         }
       } catch (error) {
-          setstate({
-              ...state,
-              error: "Error en enviar los datos.",
-            });
-            setTimeout(() => {
-              setstate({
-                ...state,
-                error: "",
-              });
-            }, 2000);  
+          
         console.error("Error en enviar los datos", datos);
       }
 
@@ -139,52 +116,25 @@ const especialidades = () => {
 
   async function enviarDataDelete(item){
     try {
-        const response = await fetch(url + '/' + formData.id, {
+        const response = await fetch(url + '/' + item.id, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          
         });
         if (response.ok) {
           const responsebody = await response.json();
-          setstate({
-              ...state,
-              success: true,
-            });
-            setTimeout(() => {
-              setstate({
-                ...state,
-                success: "",
-              });
-            }, 2000);
+          
           getDatos();
           resetFormData();
           formData.nombre = "";
         } else {
           const responsebody = await response.json();
-          setstate({
-              ...state,
-              error: "habia un error",
-            });
-            setTimeout(() => {
-              setstate({
-                ...state,
-                error: "",
-              });
-            }, 2000);
+          
         }
       } catch (error) {
-          setstate({
-              ...state,
-              error: "Error en enviar los datos.",
-            });
-            setTimeout(() => {
-              setstate({
-                ...state,
-                error: "",
-              });
-            }, 2000);  
+          
         console.error("Error en enviar los datos", datos);
       }
   }
@@ -236,7 +186,7 @@ const especialidades = () => {
       <Form onSubmit={Enviardatos}>
         <Form.Group>
         <Form.Control
-            type="text"
+            type="hidden"
             name="id"
             value={formData.id}
             onChange={cambiodata}
