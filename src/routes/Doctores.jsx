@@ -7,7 +7,7 @@ const Doctores = () => {
   const [formData, useFormData] = useState({
     nombre: "",
     correo_electronico: "",
-    color: "",
+    color: "#FFFFFF",
   });
 
   const [state, setstate] = useState({
@@ -20,7 +20,7 @@ const Doctores = () => {
       id: "",
       nombre: "",
       correo_electronico: "",
-      color: ""
+      color: "#FFFFFF"
     });
   };
 
@@ -69,7 +69,7 @@ const Doctores = () => {
         resetFormData();
         formData.nombre = "";
         formData.correo_electronico = "";
-        formData.color = ""
+        formData.color = "#FFFFFF"
       } else {
         const responsebody = await response.json();
        
@@ -118,7 +118,7 @@ const Doctores = () => {
         resetFormData();
         formData.nombre = "";
         formData.correo_electronico = "";
-        formData.color = "";
+        
       } else {
         const responsebody = await response.json();
        
@@ -150,7 +150,7 @@ const Doctores = () => {
         resetFormData();
         formData.nombre = "";
         formData.correo_electronico = "";
-        formData.color = "";
+        
       } else {
         const responsebody = await response.json();
        
@@ -256,6 +256,7 @@ const Doctores = () => {
           <Form.Control
             type="color"
             name="color"
+            
             value={formData.color}
             onChange={cambiodata}
           />
