@@ -32,12 +32,18 @@ const Doctores = () => {
   const Enviardatos = async (event) => {
     event.preventDefault();
 
-    /*if (formData.id) {
+    if (formData.id) {
       enviarDataPUT();
-    }else{
+      
+    }else  {
       enviarDataPost();
-    }*/
+    }
+      
+    
 
+    
+  };
+  const enviarDataPost = async (event) => {
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -93,7 +99,7 @@ const Doctores = () => {
       }, 2000);
       console.error("Error en enviar los datos", datos);
     }
-  };
+  }
 
   const enviarDataPUT = async () => {
     try {
@@ -107,16 +113,7 @@ const Doctores = () => {
       if (response.ok) {
         const responsebody = await response.json();
 
-        setstate({
-          ...state,
-          success: true,
-        });
-        setTimeout(() => {
-          setstate({
-            ...state,
-            success: "",
-          });
-        }, 2000);
+        
         getDatos();
         resetFormData();
         formData.nombre = "";
@@ -125,30 +122,12 @@ const Doctores = () => {
       } else {
         const responsebody = await response.json();
        
-        setstate({
-          ...state,
-          error: "habia un error.",
-        });
-        setTimeout(() => {
-          setstate({
-            ...state,
-            error: "",
-          });
-        }, 2000);
+        
 
         console.log(responsebody);
       }
     } catch (error) {
-      setstate({
-        ...state,
-        error: "Error en enviar los datos.",
-      });
-      setTimeout(() => {
-        setstate({
-          ...state,
-          error: "",
-        });
-      }, 2000);
+      
       console.error("Error en enviar los datos", datos);
     }
 
@@ -156,26 +135,17 @@ const Doctores = () => {
 
   async function enviarDataDelete(item){
     try {
-      const response = await fetch(url + '/' + formData.id, {
+      const response = await fetch(url + '/' + item.id, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        }
+        
       });
       if (response.ok) {
         const responsebody = await response.json();
 
-        setstate({
-          ...state,
-          success: true,
-        });
-        setTimeout(() => {
-          setstate({
-            ...state,
-            success: "",
-          });
-        }, 2000);
+        
         getDatos();
         resetFormData();
         formData.nombre = "";
@@ -188,26 +158,12 @@ const Doctores = () => {
           ...state,
           error: "habia un error.",
         });
-        setTimeout(() => {
-          setstate({
-            ...state,
-            error: "",
-          });
-        }, 2000);
+        
 
         console.log(responsebody);
       }
     } catch (error) {
-      setstate({
-        ...state,
-        error: "Error en enviar los datos.",
-      });
-      setTimeout(() => {
-        setstate({
-          ...state,
-          error: "",
-        });
-      }, 2000);
+      
       console.error("Error en enviar los datos", datos);
     }
 
@@ -242,6 +198,7 @@ const Doctores = () => {
 
     if (response.ok) {
       useData(responseData);
+      
     }else{
       resetFormData();
     }
@@ -267,7 +224,7 @@ const Doctores = () => {
       <Form onSubmit={Enviardatos}>
         <Form.Group>
         <Form.Control
-            type="text"
+            type="hidden"
             name="id"
             value={formData.id}
             onChange={cambiodata}
