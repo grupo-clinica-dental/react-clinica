@@ -311,6 +311,10 @@ export const Citas = () => {
                     <td>{cita.notas}</td>
                     <td>
                       <button onClick={() => actualizarFormulario(cita)}>Actualizar</button>
+                     
+                    </td>
+                    <td>
+                     
                       <button onClick={() => eliminarCita(cita.id)}>Eliminar</button>
                     </td>
                   </tr>
