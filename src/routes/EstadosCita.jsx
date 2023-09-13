@@ -1,16 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Form, Button, Table } from 'react-bootstrap';
+import { useState, useEffect } from "react";
+import { Form, Button, Table } from "react-bootstrap";
 
-const urlRoles = 'http://localhost:3000/api/roles';
+const urlEstadosCita = "http://localhost:3000/api/estadoCita";
 
-export const Roles = () => {
+export const EstadosCita = () => {
   const [formData, setFormData] = useState({
-    nombre: '',
+    estado: "",
+    activo: true,
+    fecha_borrado: ""
   });
 
   const [state, setState] = useState({
     error: null,
-    success: null,
+    success: null
   });
 
   const handleChange = (event) => {
@@ -22,10 +24,10 @@ export const Roles = () => {
     event.preventDefault();
 
     try {
-      const response = await fetch(urlRoles, {
-        method: 'POST',
+      const response = await fetch(urlEstadosCita, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
@@ -35,17 +37,22 @@ export const Roles = () => {
         setState({ ...state, success: responseData.message });
 
         setFormData({
-          nombre: '',
+          estado: "",
+          activo: true,
+          fecha_borrado: ""
         });
 
         setTimeout(() => {
           setState({ ...state, success: null });
         }, 2000);
 
-        loadData();
+      loadData()
       } else {
         const responseBody = await response.json();
         setState({ ...state, error: responseBody.message });
+        setTimeout(() => {
+          setState({ ...state, error: null });
+        }, 2000);
       }
     } catch (error) {
       setState({ ...state, error: 'Ha ocurrido un error' });
@@ -54,40 +61,45 @@ export const Roles = () => {
 
   const [data, setData] = useState([]);
 
-  const loadData = async () => {
-    try {
-      const response = await fetch(urlRoles);
-      const responseData = await response.json();
-      setData(responseData);
-    } catch (error) {
-      console.error('Error loading data:', error);
-    }
-  };
+  const loadData = ()  => {
+    fetch(urlEstadosCita, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((response) => setData(response))
+        .catch((error) => console.error(error));
+  }
 
   useEffect(() => {
-    loadData();
+  loadData();
   }, []);
 
   return (
     <>
-      {state.error ? (
+   {state.error ? (
         <div className="notificacion error">{state.error}</div>
       ) : null}
       {state.success ? (
-        <div className="notificacion success">{state.success}</div>
+        <div className="notificacion success">Doctor creado fue un exicto</div>
       ) : null}
-
-      <h1>Roles</h1>
+      <h1>Estados de Cita</h1>
+      
       <Form onSubmit={handleSubmit} className="py-5">
+       
+
         <Form.Group className="mt-2">
-          <Form.Label>Nombre</Form.Label>
+          <Form.Label>Estado</Form.Label>
           <Form.Control
             type="text"
-            name="nombre"
-            value={formData.nombre}
+            name="estado"
+            value={formData.estado}
             onChange={handleChange}
           />
         </Form.Group>
+
 
         <Button className="mt-5" variant="primary" type="submit">
           Enviar Datos
@@ -95,30 +107,37 @@ export const Roles = () => {
       </Form>
 
       <h1>Reporte</h1>
-      {data.length === 0 && (
-        <div>
-          <span style={{ color: 'black' }}>No hay datos</span>
-        </div>
-      )}
+
+      {!data === 0 && (
+            <div>
+              <span colSpan="4" style={{color: 'black'}}>No hay datos</span>
+            </div>
+          )
+          }
 
       <Table striped bordered hover>
         <thead>
           <tr>
             <th>Id</th>
-            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Activo</th>
+            <th>Fecha de Borrado</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((item) => (
+          {data?.map((item) => (
             <tr key={item.id}>
               <td>{item.id}</td>
-              <td>{item.nombre}</td>
+              <td>{item.estado}</td>
+              <td>{item.activo ? "Sí" : "No"}</td>
+              <td>{item.fecha_borrado ? new Date(item.fecha_borrado).toDateString('es') : null}</td>
             </tr>
           ))}
+       
         </tbody>
       </Table>
     </>
   );
 };
 
-export default Roles;
+export default EstadosCita;

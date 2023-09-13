@@ -59,7 +59,7 @@ export const Usuarios = () => {
           },
         })
           .then((response) => response.json())
-          .then((data) => setData(data)) 
+          .then((response) => setData(response.data)) 
           .catch((error) => console.error(error));
       } else {
         const responseBody = await response.json();
@@ -88,7 +88,9 @@ export const Usuarios = () => {
       },
     })
       .then((response) => response.json())
-      .then((data) => setData(data)) // Asegúrate de que este sea el campo correcto
+      .then((response) => {
+        setData(response.data)
+      }) 
       .catch((error) => console.error(error));
   }, []);
 

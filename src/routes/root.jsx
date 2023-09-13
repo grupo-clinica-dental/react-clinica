@@ -93,6 +93,16 @@ export default function Root() {
                   Doctores Especialidades
                   </Link>
                 </li>
+                <li key={'/EstadosCita'}>
+                  <Link to={`/EstadosCita`}>
+                  Estados Cita
+                  </Link>
+                </li>
+                <li key={'/Roles'}>
+                  <Link to={`/Roles`}>
+                  Roles
+                  </Link>
+                </li>
             </ul>
           </nav>
         </div>

@@ -17,6 +17,7 @@ import Usuarios from "./routes/Usuarios";
 import Roles from "./routes/Roles";
 import Rutas from "./routes/Ruta";
 import Permisos from "./routes/Permisos1";
+import EstadosCita from "./routes/EstadosCita";
 
 export const router = createBrowserRouter([
   {
@@ -64,9 +65,9 @@ export const router = createBrowserRouter([
         action: rootAction,
       },
      {
-        path: "/Usuarios",
+        path: "/Roles",
         element: < Roles/>,        
-        name:'Citas',
+        name:'Roles',
         errorElement: <ErrorPage />,
         loader : rootLoader, 
         action: rootAction,
@@ -103,6 +104,14 @@ export const router = createBrowserRouter([
         loader: rootLoader,
         action: rootAction,
       },
+      {
+        path: '/EstadosCita',
+        element: <EstadosCita/>,
+        name:'EstadosCitas',
+        errorElement: <ErrorPage />,
+        loader : rootLoader,
+        action: rootAction,
+      }
 
       
       
