@@ -5,7 +5,7 @@ import { Form, Button, Table } from 'react-bootstrap';
 
 const url = "http://localhost:3000/api/citas";
 const urlDoctores = "http://localhost:3000/api/doctores";
-const urlEstados = "http://localhost:3000/api/estados";
+const urlEstados = "http://localhost:3000/api/estadoCita";
 
 
 export const Citas = () => {
@@ -311,6 +311,10 @@ export const Citas = () => {
                     <td>{cita.notas}</td>
                     <td>
                       <button onClick={() => actualizarFormulario(cita)}>Actualizar</button>
+                     
+                    </td>
+                    <td>
+                     
                       <button onClick={() => eliminarCita(cita.id)}>Eliminar</button>
                     </td>
                   </tr>
