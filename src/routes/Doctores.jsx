@@ -1,7 +1,7 @@
 import { React, useState, useEffect } from "react";
 import { Form, Button, Table } from "react-bootstrap";
 
-var url = "http://localhost:3000/api/doctores";
+var url = "http://localhost:3001/api/doctores";
 
 const Doctores = () => {
   const [formData, useFormData] = useState({
