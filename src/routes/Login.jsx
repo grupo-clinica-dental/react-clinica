@@ -10,7 +10,7 @@ export default function LoginPage() {
 
   const setProfile = useAuthStore2(state => state.setProfile)
 
-  const setToken = useAuthStore2(state => state.setToken)
+  const { setToken } = useAuthStore2();
 
 
     const navigate = useNavigate()
@@ -49,10 +49,10 @@ const [state, setstate] = useState({
           })
     
           if(response.ok) {
-            const data = await response.json()
-            setstate(previous => ({...previous, success: data.welcomeMessage}))
-            setToken(data.token)
-            setProfile(data.profile)
+            const newResponse = await response.json()
+            setstate(previous => ({...previous, success: newResponse.data.welcomeMessage}))
+            setToken(newResponse.data.token)
+            setProfile(newResponse.data.profile)
             setTimeout(() => {
               navigate('/')
             }, 2000);
@@ -60,14 +60,15 @@ const [state, setstate] = useState({
     
     
           if(!response.ok) {
-            const data = await response.json()
-            setstate(previous => ({...previous, error: data.message}))
+            const otherResponse = await response.json()
+            setstate(previous => ({...previous, error: otherResponse.data.message}))
             setTimeout(() => {
               setstate(previous => ({...previous, error: ''}))
             }, 2000);
           }
           
         } catch (error) {
+          console.log(error)
           setstate(previous => ({...previous, error: 'Ha ocurrido un error al iniciar sesion'}))
         }
       }
