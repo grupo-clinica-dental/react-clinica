@@ -3,10 +3,12 @@ import { useState } from "react"
 import { Button, Form } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore2 } from "../zustand-stores/auth-store"
+import { API_URL } from "../api/api.config"
 
 export default function LoginPage() {
 
 
+  console.log(API_URL)
 
   const setProfile = useAuthStore2(state => state.setProfile)
 
@@ -38,7 +40,7 @@ const [state, setstate] = useState({
 
 
         try {
-          const url = 'http://localhost:3000/api/auth/login'
+          const url = `${API_URL}/api/auth/login`
 
           const response = await  fetch(url, {
             method: 'POST',

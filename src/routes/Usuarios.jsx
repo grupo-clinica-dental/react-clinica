@@ -2,8 +2,9 @@ import  { useState, useEffect } from "react";
 import { Form, Button, Table } from "react-bootstrap";
 import Modal from "../components/modal";
 import { useAuthStore2 } from "../zustand-stores/auth-store";
+import { API_URL } from "../api/api.config";
 
-const url = "http://localhost:3000/api/usuarios";
+const url = `${API_URL}/api/usuarios`;
 
 export const Usuarios = () => {
   const [formData, setFormData] = useState({
