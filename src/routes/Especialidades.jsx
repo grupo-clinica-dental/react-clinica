@@ -1,7 +1,7 @@
 import { React, useState, useEffect } from "react";
 import { Form, Button, Table } from "react-bootstrap";
 
-var url = "http://localhost:3001/api/especialidades";
+var url = "https://imagen-dental-api.onrender.com/api/especialidades";
 
 const especialidades = () => {
   const [formData, useFormData] = useState({
