@@ -54,6 +54,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/Doctores",
+        index: true,
         element: <ProtectedRoute> <Doctores /> </ProtectedRoute>,
         name:'Doctores',
         errorElement: <ErrorPage />,

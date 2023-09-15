@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react"
 import { Button, Form } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
@@ -36,44 +37,40 @@ const [state, setstate] = useState({
         event.preventDefault()
 
 
-        const url = 'http://localhost:3000/api/auth/login'
+        try {
+          const url = 'http://localhost:3000/api/auth/login'
 
-        fetch(url, {
+          const response = await  fetch(url, {
             method: 'POST',
             body: JSON.stringify(formData),
             headers: {
-                'Content-Type': 'application/json'
+              'Content-Type': 'application/json'
             }
-        }).then((response) => {
-            if (response.ok) {
-                return response.json()
-            } else {
-              console.log({error: response})
-           return  response.json().then((response) => {
-            setstate(previous => ({...previous, error: response.message}))
-              setTimeout(() => {
-                setstate(previous => ({...previous, error: ''}))
-              }, 2000);
-            return Promise.reject(response)
-              })
-            }
-        }).then((response) => {
-
-          setstate(previous => ({...previous, success: response.welcomeMessage}))
-            if (response) {
-              setToken(response.token)
-              setProfile(response.profile)
-              setTimeout(() => {            
-                navigate('/') 
-              }, 2000);
-            
-            }
-        }).catch((error) => {
-            console.error(error)
-            setstate(previous => ({...previous, error: 'Ha ocurrido un error'}))
-        })
+          })
+    
+          if(response.ok) {
+            const data = await response.json()
+            setstate(previous => ({...previous, success: data.welcomeMessage}))
+            setToken(data.token)
+            setProfile(data.profile)
+            setTimeout(() => {
+              navigate('/')
+            }, 2000);
+          }
+    
+    
+          if(!response.ok) {
+            const data = await response.json()
+            setstate(previous => ({...previous, error: data.message}))
+            setTimeout(() => {
+              setstate(previous => ({...previous, error: ''}))
+            }, 2000);
+          }
+          
+        } catch (error) {
+          setstate(previous => ({...previous, error: 'Ha ocurrido un error al iniciar sesion'}))
         }
-
+      }
     return (
 
       <>
@@ -109,15 +106,7 @@ const [state, setstate] = useState({
     />
   </Form.Group>
 
-  <Form.Group>
-    <Form.Label>Confirmar Contraseña</Form.Label>
-    <Form.Control
-      type="password"
-      name="secondPassword"
-      value={formData.secondPassword}
-      onChange={changeFormData}
-    />
-  </Form.Group>
+
 
   <Button variant="primary" type="submit">
     Actualizar Usuario

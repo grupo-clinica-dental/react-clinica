@@ -1,6 +1,7 @@
 import { Link, Outlet,   Form } from "react-router-dom";
 import { ProtectedRoute } from "../main";
 import { router } from "../main";
+import { useAuthStore2 } from "../zustand-stores/auth-store";
 
 
 
@@ -12,9 +13,12 @@ import { router } from "../main";
 export default function Root() {
 
 
+
+  
+
     return (
       <>
-      <ProtectedRoute isAllowed={false}>
+      <ProtectedRoute >
         <div id="sidebar">
           <h1>React Router Contacts</h1>
           <div>
@@ -109,6 +113,7 @@ export default function Root() {
           </nav>
         </div>
         <div id="detail">
+          
             <Outlet></Outlet>
         </div>
         </ProtectedRoute>
