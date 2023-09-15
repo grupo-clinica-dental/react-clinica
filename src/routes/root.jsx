@@ -1,18 +1,20 @@
-import { Link, Outlet,  useLoaderData, Form } from "react-router-dom";
-import { createContact, getContacts } from "../contacts";
+import { Link, Outlet,   Form } from "react-router-dom";
+import { ProtectedRoute } from "../main";
 import { router } from "../main";
 
 
-export async function action() {
-    const contact = await createContact();
-    return { contact };
-  }
+
+
+  
+
 
 
 export default function Root() {
-    const { contacts } = useLoaderData();
+
+
     return (
       <>
+      <ProtectedRoute isAllowed={false}>
         <div id="sidebar">
           <h1>React Router Contacts</h1>
           <div>
@@ -109,12 +111,10 @@ export default function Root() {
         <div id="detail">
             <Outlet></Outlet>
         </div>
+        </ProtectedRoute>
       </>
     );
   }
 
 
-export async function loader() {
-  const contacts = await getContacts();
-  return { contacts };
-}
+
