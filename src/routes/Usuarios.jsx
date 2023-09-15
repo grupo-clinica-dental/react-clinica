@@ -100,7 +100,7 @@ export const Usuarios = () => {
           },
         })
           .then((response) => response.json())
-          .then((response) => setData(response.data)) 
+          .then((response) => setData(response)) 
           .catch((error) => console.error(error));
       } else {
         const responseBody = await response.json();
@@ -160,7 +160,7 @@ export const Usuarios = () => {
           .then((response) => response.json())
           .then((response) => {
             console.log(response)
-            setData(response.data)
+            setData(response)
           }) 
           .catch((error) => console.error(error));
 
@@ -195,7 +195,7 @@ export const Usuarios = () => {
     })
       .then((response) => response.json())
       .then((response) => {
-        setData(response.data)
+        setData(response)
       }) 
       .catch((error) => console.error(error));
   }, []);
