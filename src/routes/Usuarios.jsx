@@ -130,7 +130,6 @@ export const Usuarios = () => {
       password: state.selectedUser?.editpassword,
     }
 
-    console.log(data)
   
     try {
       const response = await fetch(`${url}/${userId}`, {
@@ -160,9 +159,14 @@ export const Usuarios = () => {
         })
           .then((response) => response.json())
           .then((response) => {
+            console.log(response)
             setData(response.data)
           }) 
           .catch((error) => console.error(error));
+
+          setTimeout(() => {
+            setstate(  previous => ({...previous, success: null}));
+          }, 2000);
 
 
       } else {
@@ -262,7 +266,7 @@ export const Usuarios = () => {
 
       <Form onSubmit={handleSubmit}>
     {state.error ? <div className="notificacion error">{state.error}</div> : null }
-    {state.success ? <div className="notificacion success">Usuario creado con exito</div> : null }
+    {state.success ? <div className="notificacion success">{state.success}</div> : null }
 
         <Form.Group>
           <Form.Label>Nombre</Form.Label>
