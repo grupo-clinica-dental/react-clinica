@@ -32,6 +32,7 @@ export const Usuarios = () => {
   const token = useAuthStore2((state) => state.token)
 
 
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
