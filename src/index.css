@@ -391,6 +391,7 @@ i {
   padding: 1em 3em;
   border: 2px;
   position: fixed;
+  z-index: 9999;
   right: 5rem;
   top: 2rem;
 }
@@ -405,3 +406,23 @@ i {
   color: red;
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 60%;
+  position: relative;
+}

@@ -1,12 +1,16 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
 
 const url = "http://localhost:3000/api/citas";
-
 const urlDoctores = "http://localhost:3000/api/doctores";
+const urlEstados = "http://localhost:3000/api/estadoCita";
+const urlPacientes = "http://localhost:3000/api/pacientes";
 
 export const Citas = () => {
   const [formData, setFormData] = useState({
+    id: '',
     fecha_hora: '',
     doctor_id: '',
     paciente_id: '',
@@ -17,8 +21,15 @@ export const Citas = () => {
     notas: ''
   });
 
-  const resetForm = () => {
+  const [state, setState] = useState({
+    error: null,
+    success: null,
+    citas: []
+  });
+
+  const resetFormData = () => {
     setFormData({
+      id: '',
       fecha_hora: '',
       doctor_id: '',
       paciente_id: '',
@@ -29,17 +40,26 @@ export const Citas = () => {
       notas: ''
     });
   };
-  
 
-
-  const cambioData = (event) => {
+  const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const enviarDatos = async (event) => {
     event.preventDefault();
+    if (formData.id) {
+      await enviarDataPUT();
+    } else {
+      await enviarDataPost();
+    }
+  };
 
+  const [doctores, setDoctores] = useState([]);
+  const [estados, setEstados] = useState([]);
+  const [pacientes, setPacientes] = useState([]);
+
+  const enviarDataPost = async () => {
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -48,245 +68,281 @@ export const Citas = () => {
         },
         body: JSON.stringify(formData)
       });
-
       if (response.ok) {
         const responseData = await response.json();
-        console.log("Datos Enviados");
-        console.log(responseData);
-        getCitas(); 
-        resetForm();
+        if (responseData.exito) {
+          setState(prev => ({ ...prev, success: "Cita creada exitosamente" }));
+          getCitas();
+        }
       } else {
-        const responseBody = await response.json();
-        console.log("Error al enviar datos");
-        console.log(responseBody);
+        setState(prev => ({ ...prev, error: "Error al crear la cita" }));
       }
     } catch (error) {
-      console.error("Error al enviar datos", error);
+      setState(prev => ({ ...prev, error: "Error al enviar datos" }));
     }
-  };
+  }
 
-  const [data, setData] = useState([]);
+  const enviarDataPUT = async () => {
+    try {
+      const response = await fetch(`${url}/${formData.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+      if (response.ok) {
+        const responseData = await response.json();
+        if (responseData.exito) {
+          setState(prev => ({ ...prev, success: "Cita actualizada exitosamente" }));
+          getCitas();
+          resetFormData();
+        }
+      } else {
+        setState(prev => ({ ...prev, error: "Error al actualizar la cita" }));
+      }
+    } catch (error) {
+      setState(prev => ({ ...prev, error: "Error al actualizar datos" }));
+    }
+  }
 
   const getCitas = async () => {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
+    try {
+      const response = await fetch(url);
+      const responseData = await response.json();
+      if (response.ok && responseData.exito) {
+        setState(prev => ({ ...prev, citas: responseData.item_cita }));
+      } else {
+        setState(prev => ({ ...prev, error: "Error al obtener las citas" }));
       }
-    });
-    const responseData = await response.json();
-
-    if (response.ok && responseData.item_cita) {
-      setData(responseData.item_cita);
-    } else {
-      setData([]);
+    } catch (error) {
+      setState(prev => ({ ...prev, error: "Error al obtener citas" }));
     }
   };
-  
-  const actualizarFormulario = (item) => {
-    setFormData(item);
-    resetForm(item);
-  }
-  
+
   const eliminarCita = async (id) => {
     try {
       const response = await fetch(`${url}/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        method: 'DELETE'
       });
-  
       if (response.ok) {
-        getCitas(); 
+        const responseData = await response.json();
+        if (responseData.exito) {
+          setState(prev => ({ ...prev, success: "Cita eliminada exitosamente" }));
+          getCitas();
+        }
       } else {
-        const responseBody = await response.json();
-        console.error("Error al eliminar la cita:", responseBody);
+        setState(prev => ({ ...prev, error: "Error al eliminar la cita" }));
       }
     } catch (error) {
-      console.error("Error al eliminar la cita:", error);
+      setState(prev => ({ ...prev, error: "Error al eliminar cita" }));
     }
   }
 
-  const [doctores, setDoctores] = useState([]);
-  const cargarDoctores = async () => {
+  const actualizarFormulario = (cita) => {
+    resetFormData();
+    setFormData(cita);
+  }
+  const fetchPacientes = async () => {
     try {
-      const response = await fetch(urlDoctores);
-      if (response.ok) {
-        const data = await response.json();
-        setDoctores(data);  
+      const response = await fetch(urlPacientes);
+      const data = await response.json();
+  
+      if (Array.isArray(data.item_paciente)) {
+        setPacientes(data.item_paciente);
       } else {
-        console.error("Error al cargar doctores");
+        console.error("La respuesta del servidor no es un arreglo");
       }
     } catch (error) {
-      console.error("Error al cargar doctores", error);
+      console.error("Error obteniendo pacientes:", error);
     }
-};
+  };
+  
 
   useEffect(() => {
-    console.log("Se invocó el useEffect");
+    const fetchDoctores = async () => {
+      try {
+        const response = await fetch(urlDoctores);
+        const data = await response.json();
+        setDoctores(data);
+      } catch (error) {
+        console.error("Error obteniendo doctores:", error);
+      }
+    };
+
+    const fetchEstados = async () => {
+      try {
+        const response = await fetch(urlEstados);
+        const data = await response.json();
+        setEstados(data);
+      } catch (error) {
+        console.error("Error obteniendo estados:", error);
+      }
+    };
+    fetchDoctores();
+    fetchEstados();
+    fetchPacientes();
     getCitas();
-    cargarDoctores();
+
   }, []);
 
-
-return (
-  <>
-  
-  <div className="container mt-2">
-  
-    <div className="row">
-      <div className="col-md-12">
-        
-      </div>
-    </div>
+  return (
+    <>
     
-    <div className="row">
-      <div className="col-md-10 offset-md-1">
-        <div className="card">
-          <div className="card-header">
-            Registrar Cita
-          </div>
-          <div className="card-body">
-            <Form onSubmit={enviarDatos}>
-              
-              <Form.Group>
-                <Form.Label>Fecha y Hora</Form.Label>
-                <Form.Control 
-                  type='datetime-local' 
-                  name='fecha_hora'
-                  value={formData.fecha_hora}
-                  onChange={cambioData}
-                />
-              </Form.Group>
+    <h2 className=" col-md-8 mx-auto">Registro de Citas</h2>
+      <div className="container mt-2">
+        <div className="card-body col-md-8 mx-auto">
+          <Form onSubmit={enviarDatos}>
+            {state.error && <div className="notificacion error">{state.error}</div>}
+            {state.success && <div className="notificacion success">{state.success}</div>}
+            
+            <Form.Group>
+              <Form.Label>Fecha y Hora</Form.Label>
+              <Form.Control
+                type="datetime-local"
+                name="fecha_hora"
+                value={formData.fecha_hora}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
 
-              <Form.Group>
-                <Form.Label>ID del Doctor</Form.Label>
-                <Form.Control
-    as="select"
-    name='doctor_id' 
-    value={formData.doctor_id}
-    onChange={cambioData}
->
-    <option value="" disabled>Seleccione un doctor</option>
-    {doctores.map(doctor => (
-        <option key={doctor.id} value={doctor.id}>{doctor.nombre} - {doctor.id}</option>
-    ))}
-</Form.Control>
-              </Form.Group>
+            <Form.Group>
+          <Form.Label>ID Doctor</Form.Label>
+          <Form.Control as="select" name='doctor_id' value={formData.doctor_id} onChange={handleInputChange} required>
+            <option value=''>Seleccione un doctor</option>
+            {doctores.map(doctor => <option key={doctor.id} value={doctor.id}>{doctor.nombre}</option>)}
+          </Form.Control>
+        </Form.Group>
 
-              <Form.Group>
-                <Form.Label>ID del Paciente</Form.Label>
-                <Form.Control 
-                  type='number' 
-                  name='paciente_id'
-                  value={formData.paciente_id}
-                  onChange={cambioData}
-                />
-              </Form.Group>
 
-              <Form.Group>
-                <Form.Label>ID del Estado</Form.Label>
-                <Form.Control 
-                  type='number' 
-                  name='estado_id'
-                  value={formData.estado_id}
-                  onChange={cambioData}
-                />
-              </Form.Group>
+        <Form.Group>
+  <Form.Label>ID Paciente</Form.Label>
+  <Form.Control as="select" name='paciente_id' value={formData.paciente_id} onChange={handleInputChange} required>
+    <option value=''>Seleccione un paciente</option>
+    {pacientes.map(paciente => <option key={paciente.id} value={paciente.id}>{paciente.nombre}</option>)}
+  </Form.Control>
+</Form.Group>
 
-              <Form.Group>
-                <Form.Label>ID del Evento en Google Calendar</Form.Label>
-                <Form.Control 
-                  type='text' 
-                  name='google_calendar_event_id'
-                  value={formData.google_calendar_event_id}
-                  onChange={cambioData}
-                />
-              </Form.Group>
 
-              <Form.Group>
-                <Form.Label>Ubicación</Form.Label>
-                <Form.Control 
-                  type='text' 
-                  name='ubicacion'
-                  value={formData.ubicacion}
-                  onChange={cambioData}
-                />
-              </Form.Group>
+            <Form.Group>
+          <Form.Label>ID Estado</Form.Label>
+          <Form.Control as="select" name='estado_id' value={formData.estado_id} onChange={handleInputChange} required>
+            <option value=''>Seleccione un estado</option>
+            {estados.map(estado => <option key={estado.id} value={estado.id}>{estado.estado}</option>)}
+          </Form.Control>
+        </Form.Group>
+        
+        {/* <Form.Group>
+              <Form.Label>ID Estado</Form.Label>
+              <Form.Control
+                type="number"
+                name="estado_id"
+                value={formData.estado_id}
+                onChange={handleInputChange}
+                placeholder="Ingresa el ID del estado"
+              />
+            </Form.Group> */}
 
-              <Form.Group>
-                <Form.Label>Descripción</Form.Label>
-                <Form.Control 
-                  as='textarea' 
-                  name='descripcion'
-                  value={formData.descripcion}
-                  onChange={cambioData}
-                />
-              </Form.Group>
+            <Form.Group>
+              <Form.Label>ID Evento de Google Calendar</Form.Label>
+              <Form.Control
+                type="text"
+                name="google_calendar_event_id"
+                value={formData.google_calendar_event_id || ''}
+                onChange={handleInputChange}
+                placeholder="Opcional"
+              />
+            </Form.Group>
 
-              <Form.Group>
-                <Form.Label>Notas</Form.Label>
-                <Form.Control 
-                  as='textarea' 
-                  name='notas'
-                  value={formData.notas}
-                  onChange={cambioData}
-                />
-              </Form.Group>
+            <Form.Group>
+              <Form.Label>Ubicación</Form.Label>
+              <Form.Control
+                type="text"
+                name="ubicacion"
+                value={formData.ubicacion || ''}
+                onChange={handleInputChange}
+                placeholder="Ingresa la ubicación"
+              />
+            </Form.Group>
 
-              <div className="d-flex justify-content-end mt-3">
-                <Button variant='primary' type='submit'>Enviar Datos</Button>
-              </div>
-            </Form>
+            <Form.Group>
+              <Form.Label>Descripción</Form.Label>
+              <Form.Control
+                type="text"
+                name="descripcion"
+                value={formData.descripcion || ''}
+                onChange={handleInputChange}
+                placeholder="Ingresa la descripción"
+              />
+            </Form.Group>
+
+            <Form.Group>
+              <Form.Label>Notas</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="notas"
+                value={formData.notas || ''}
+                onChange={handleInputChange}
+                placeholder="Agrega cualquier nota relevante"
+              />
+            </Form.Group>
+
+            <div className="d-flex justify-content-end mt-3">
+              <Button variant='primary' type='submit'>Enviar Datos</Button>
+            </div>
+          </Form>
+        </div>
+
+        <div className="row ">
+          <div className="col-md-12">
+            <h1 className="mb-4">Reporte de Citas</h1>
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Fecha y Hora</th>
+                  <th>ID Doctor</th>
+                  <th>ID Paciente</th>
+                  <th>Estado</th>
+                  <th>ID Google Calendar</th>
+                  <th>Ubicación</th>
+                  <th>Descripción</th>
+                  <th>Notas</th>
+                  <th colSpan={2}>Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {state.citas.map(cita => (
+                  <tr key={cita.id}>
+                    <td>{cita.id}</td>
+                    <td>{cita.fecha_hora}</td>
+                    <td>{cita.doctor_id}</td>
+                    <td>{cita.paciente_id}</td>
+                    <td>{cita.estado_id}</td>
+                    <td>{cita.google_calendar_event_id}</td>
+                    <td>{cita.ubicacion}</td>
+                    <td>{cita.descripcion}</td>
+                    <td>{cita.notas}</td>
+                    <td>
+                      <button onClick={() => actualizarFormulario(cita)}>Actualizar</button>
+                     
+                    </td>
+                    <td>
+                     
+                      <button onClick={() => eliminarCita(cita.id)}>Eliminar</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div className="row mt-5">
-      <div className="col-md-12">
-        <h1 className="mb-4">Reporte de Citas</h1>
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>#Cita</th>
-              <th>Fecha y Hora</th>
-              <th>Doctor</th>
-              <th>Paciente</th>
-              <th>Estado</th>
-             
-              <th>Ubicación</th>
-              <th>Descripción</th>
-              <th>Notas</th>
-              <th colSpan={2}>Accion</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map(item => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.fecha_hora}</td>
-                <td>{item.doctor_id}</td>
-                <td>{item.paciente_id}</td>
-                <td>{item.estado_id}</td>
-               
-                <td>{item.ubicacion}</td>
-                <td>{item.descripcion}</td>
-                <td>{item.notas}</td>
-                <td><Button  onClick={() => actualizarFormulario(item)}>Actualizar</Button></td>
-                <td><Button  onClick={() => eliminarCita(item.id)}>Eliminar</Button></td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </div>
-    </div>
-  </div>
-</>
-
+    
+     </div>
+     </>
 );
 
 }
-
 export default Citas;
+

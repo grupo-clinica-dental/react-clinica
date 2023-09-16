@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react';
-import { Form, Button, Table } from 'react-bootstrap';
+import { useState, useEffect } from "react";
+import { Form, Button, Table } from "react-bootstrap";
 import Modal from './../components/modal'
 
+const urlEstadosCita = "http://localhost:3000/api/estadoCita";
 
-const urlRoles = 'http://localhost:3000/api/roles';
-
-export const Roles = () => {
+export const EstadosCita = () => {
   const [formData, setFormData] = useState({
-    nombre: '',
+    estado: "",
+    activo: true,
   });
 
   const [state, setState] = useState({
     error: null,
     success: null,
     modalIsOpen: false,
-    selectedRol: {
+    selectedEstado: {
       editnombre: "",
     }
   });
@@ -26,7 +26,7 @@ export const Roles = () => {
 
   const handleEditChange = (event) => {
     const { name, value } = event.target;
-    setState((previous) => ({...previous, selectedRol: {...previous.selectedRol, [name]: value}}))
+    setState((previous) => ({...previous, selectedEstado: {...previous.selectedEstado, [name]: value}}))
   }
 
   const handleOpenModal = () => {
@@ -38,40 +38,45 @@ export const Roles = () => {
   };
 
 
-  const changeSelectedRol = (rol) => {
-    setState((previous => ({...previous, selectedRol: {
-      editnombre: rol.nombre,
+ const changeSelectedEstado = (estado) => {
+    setState((previous => ({...previous, selectedEstado: {
+      editnombre: estado.estado,
     } })))
   }
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await fetch(urlRoles, {
-        method: 'POST',
+      const response = await fetch(urlEstadosCita, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        const responseData = await response.json();
-        setState({ ...state, success: responseData.message });
+        setState({ ...state, success: 'Estado de cita creado con exito' });
 
         setFormData({
-          nombre: '',
+          estado: "",
+          activo: true,
+          fecha_borrado: ""
         });
 
         setTimeout(() => {
-          setState({ ...state, success: 'Rol Creado con exito' });
+          setState({ ...state, success: null });
         }, 2000);
 
-        loadData();
+      loadData()
       } else {
         const responseBody = await response.json();
         setState({ ...state, error: responseBody.message });
+        setTimeout(() => {
+          setState({ ...state, error: null });
+        }, 2000);
       }
     } catch (error) {
       setState({ ...state, error: 'Ha ocurrido un error' });
@@ -81,15 +86,16 @@ export const Roles = () => {
   const handleSubmitEdit = async (event) => {
     event.preventDefault();
   
-    const rolId = state.selectedRol?.id;
+    const estadoId = state.selectedEstado?.id;
 
     const data = {
-      nombre: state.selectedRol?.editnombre,
+      estado: state.selectedEstado?.editnombre,
+ 
     }
 
   
     try {
-      const response = await fetch(`${urlRoles}/${rolId}`, {
+      const response = await fetch(`${urlEstadosCita}/${estadoId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -98,7 +104,7 @@ export const Roles = () => {
       });
   
       if (response.ok) {
-        setState(previous => ({...previous, success: "Rol actualizado con exito"}));
+        setState(previous => ({...previous, success: "Estado actualizado con exito"}));
         handleCloseModal();
         setFormData({
           nombre: "",
@@ -108,7 +114,7 @@ export const Roles = () => {
           password: "",
           secondPassword: "",
         });
-        fetch(urlRoles, {
+        fetch(urlEstadosCita, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -138,27 +144,28 @@ export const Roles = () => {
       setState({ ...state, error: "Ha ocurrido un error" });
     }
   };
-  
 
   const [data, setData] = useState([]);
 
-  const loadData = async () => {
-    try {
-      const response = await fetch(urlRoles);
-      const responseData = await response.json();
-      setData(responseData);
-    } catch (error) {
-      console.error('Error loading data:', error);
-    }
-  };
+  const loadData = ()  => {
+    fetch(urlEstadosCita, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((response) => setData(response.data))
+        .catch((error) => console.error(error));
+  }
 
   useEffect(() => {
-    loadData();
+  loadData();
   }, []);
 
   return (
     <>
-  <Modal isOpen={state.modalIsOpen} onClose={handleCloseModal}>
+   <Modal isOpen={state.modalIsOpen} onClose={handleCloseModal}>
       <h1>Editar Usuario</h1>
       <Form onSubmit={handleSubmitEdit}>
   <Form.Group>
@@ -166,37 +173,40 @@ export const Roles = () => {
     <Form.Control
       type="text"
       name="editnombre"
-      value={state.selectedRol.editnombre}
+      value={state.selectedEstado.editnombre}
       onChange={handleEditChange}
     />
   </Form.Group>
 
   
   <Button variant="primary" type="submit">
-    Actualizar Rol
+    Actualizar Estado Cita
   </Button>
 </Form>
 
     </Modal>
 
-      {state.error ? (
+   {state.error ? (
         <div className="notificacion error">{state.error}</div>
       ) : null}
       {state.success ? (
         <div className="notificacion success">{state.success}</div>
       ) : null}
-
-      <h1>Roles</h1>
+      <h1>Estados de Cita</h1>
+      
       <Form onSubmit={handleSubmit} className="py-5">
+       
+
         <Form.Group className="mt-2">
-          <Form.Label>Nombre</Form.Label>
+          <Form.Label>Estado</Form.Label>
           <Form.Control
             type="text"
-            name="nombre"
-            value={formData.nombre}
+            name="estado"
+            value={formData.estado}
             onChange={handleChange}
           />
         </Form.Group>
+
 
         <Button className="mt-5" variant="primary" type="submit">
           Enviar Datos
@@ -204,38 +214,49 @@ export const Roles = () => {
       </Form>
 
       <h1>Reporte</h1>
-      {data.length === 0 && (
-        <div>
-          <span style={{ color: 'black' }}>No hay datos</span>
-        </div>
-      )}
+
+      {!data === 0 && (
+            <div>
+              <span colSpan="4" style={{color: 'black'}}>No hay datos</span>
+            </div>
+          )
+          }
 
       <Table striped bordered hover>
         <thead>
           <tr>
             <th>Id</th>
-            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Activo</th>
+            <th>Fecha de Borrado</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((item) => (
+          {data?.map((item) => (
             <tr key={item.id}>
               <td>{item.id}</td>
-              <td>{item.nombre}</td>
-              <td>
+              <td>{item.estado}</td>
+              <td>{item.activo ? "Sí" : "No"}</td>
+              <td>{item.fecha_borrado ? new Date(item.fecha_borrado).toLocaleDateString('es-hn', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              }) : null}</td>
+                  <td>
                 <Button onClick={() => {
             
               handleOpenModal();
 
-              changeSelectedRol(item);
+              changeSelectedEstado(item);
 
                 }}>Editar</Button></td>
             </tr>
           ))}
+       
         </tbody>
       </Table>
     </>
   );
 };
 
-export default Roles;
+export default EstadosCita;

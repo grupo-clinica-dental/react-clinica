@@ -1,18 +1,24 @@
-import { Link, Outlet,  useLoaderData, Form } from "react-router-dom";
-import { createContact, getContacts } from "../contacts";
+import { Link, Outlet,   Form } from "react-router-dom";
+import { ProtectedRoute } from "../main";
 import { router } from "../main";
+import { useAuthStore2 } from "../zustand-stores/auth-store";
 
 
-export async function action() {
-    const contact = await createContact();
-    return { contact };
-  }
+
+
+  
+
 
 
 export default function Root() {
-    const { contacts } = useLoaderData();
+
+
+
+  
+
     return (
       <>
+      <ProtectedRoute >
         <div id="sidebar">
           <h1>React Router Contacts</h1>
           <div>
@@ -93,18 +99,27 @@ export default function Root() {
                   Doctores Especialidades
                   </Link>
                 </li>
+                <li key={'/EstadosCita'}>
+                  <Link to={`/EstadosCita`}>
+                  Estados Cita
+                  </Link>
+                </li>
+                <li key={'/Roles'}>
+                  <Link to={`/Roles`}>
+                  Roles
+                  </Link>
+                </li>
             </ul>
           </nav>
         </div>
         <div id="detail">
+          
             <Outlet></Outlet>
         </div>
+        </ProtectedRoute>
       </>
     );
   }
 
 
-export async function loader() {
-  const contacts = await getContacts();
-  return { contacts };
-}
+
