@@ -35,6 +35,8 @@ const Permisos = () => {
     }, 5000); // Muestra el mensaje durante 5 segundos (puedes ajustarlo según tus preferencias)
   };
 
+
+
   const enviarDatos = async (event) => {
     event.preventDefault();
 
@@ -88,16 +90,23 @@ const Permisos = () => {
     cargarDatos();
 
     // Obtener datos de roles desde la API
-    fetch(rolesUrl)
-      .then((response) => response.json())
-      .then((data) => setRoles(data))
-      .catch((error) => console.error(error));
-
-    // Obtener datos de rutas desde la API
-    fetch(rutasUrl)
-      .then((response) => response.json())
-      .then((data) => setRutas(data))
-      .catch((error) => console.error(error));
+    fetch(rolesUrl)  //recorre la api
+    .then((response) => response.json())
+    .then((data) => {//Inge aqui esta el contenido de la api roles,  se hace entre llaves para definir que es la data de roles 
+      console.log("Datos de roles:", data);
+      setRoles(data); //aqui guardo la informacion
+    })
+    .catch((error) => console.error(error)); //por si algo salio mal
+  
+  // Obtener datos de rutas desde la API
+  fetch(rutasUrl)
+    .then((response) => response.json())
+    .then((data) => { //Inge aqui esta el contenido de la api rutas, se hace entre llaves para definir que es la data de rutas  
+      console.log("Datos de rutas:", data);
+      setRutas(data);
+    })
+    .catch((error) => console.error(error)); //por si algo sale mal
+    
   }, [envio]);
 
   const abrirModalEditar = (permisoId) => {
@@ -215,7 +224,7 @@ const Permisos = () => {
                   >
                     <option value="">Selecciona una Ruta</option>
                     {Array.isArray(rutas) && rutas.map((ruta) => (
-                      <option key={ruta.id} value={ruta.id}>
+                      <option key={ruta.id} value={ruta.id_ruta}>
                         {ruta.nombre_ruta}
                       </option>
                     ))}
@@ -290,6 +299,7 @@ const Permisos = () => {
                       >
                         Editar
                       </Button>
+                      {' '}
                       <Button
                         variant="danger"
                         onClick={() => eliminarPermiso(permiso.id)}
