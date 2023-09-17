@@ -82,7 +82,7 @@ const [state, setstate] = useState({
     
 
     <div>
-  <h1>Iniciar Sesion</h1>]
+  <h1>Iniciar Sesion</h1>
   <span>{state.error ? state.error : null}</span>
       <Form onSubmit={handleSubmit}>
   <Form.Group>
