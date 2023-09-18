@@ -68,6 +68,7 @@ const [state, setstate] = useState({
               setstate(previous => ({...previous, error: ''}))
             }, 2000);
           }
+        
           
         } catch (error) {
           console.log(error)
@@ -76,7 +77,7 @@ const [state, setstate] = useState({
       }
     return (
 
-      <>
+      <div>
           {state.error ? <div className="notificacion error">{state.error}</div> : null }
     {state.success ? <div className="notificacion success">{state.success}</div> : null }.
     
@@ -116,7 +117,7 @@ const [state, setstate] = useState({
   </Button>
 </Form>
         </div>
-      </>
+      </div>
     
     )
 }
