@@ -4,12 +4,13 @@ import modal from '../components/modal';
 import { useAuthStore2 } from "../zustand-stores/auth-store";
 import { API_URL } from "../api/api.config";
 
-const url = "https://imagen-dental-api.onrender.com/api/citas";
-const urlDoctores = "https://imagen-dental-api.onrender.com/api/doctores";
-const urlEstados = "https://imagen-dental-api.onrender.com/api/estadoCita";
-const urlPacientes = "https://imagen-dental-api.onrender.com/api/pacientes";
+const url = `${API_URL}/api/citas`;
+const urlDoctores = `${API_URL}/api/doctores`;
+const urlEstados = `${API_URL}/api/estadoCita`;
+const urlPacientes = `${API_URL}/api/pacientes`;
 
 export const Citas = () => {
+  const token = useAuthStore2((state) => state.token)
   const [formData, setFormData] = useState({
     id: '',
     fecha_hora: '',
@@ -65,7 +66,8 @@ export const Citas = () => {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData)
       });
@@ -88,7 +90,8 @@ export const Citas = () => {
       const response = await fetch(`${url}/${formData.id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData)
       });
@@ -109,7 +112,14 @@ export const Citas = () => {
 
   const getCitas = async () => {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, 
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+        );
       const responseData = await response.json();
       if (response.ok && responseData.exito) {
         setState(prev => ({ ...prev, citas: responseData.item_cita }));
