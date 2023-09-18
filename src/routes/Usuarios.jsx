@@ -1,8 +1,10 @@
 import  { useState, useEffect } from "react";
 import { Form, Button, Table } from "react-bootstrap";
 import Modal from "../components/modal";
+import { useAuthStore2 } from "../zustand-stores/auth-store";
+import { API_URL } from "../api/api.config";
 
-const url = "http://localhost:3000/api/usuarios";
+const url = `${API_URL}/api/usuarios`;
 
 export const Usuarios = () => {
   const [formData, setFormData] = useState({
@@ -26,6 +28,11 @@ export const Usuarios = () => {
       editsecondPassword: "",
     }
   });
+
+
+  const token = useAuthStore2((state) => state.token)
+
+
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -73,6 +80,7 @@ export const Usuarios = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -97,10 +105,11 @@ export const Usuarios = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         })
           .then((response) => response.json())
-          .then((response) => setData(response.data)) 
+          .then((response) => setData(response)) 
           .catch((error) => console.error(error));
       } else {
         const responseBody = await response.json();
@@ -138,6 +147,7 @@ export const Usuarios = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        Authorization: `Bearer ${token}`,
       });
   
       if (response.ok) {
@@ -159,8 +169,8 @@ export const Usuarios = () => {
         })
           .then((response) => response.json())
           .then((response) => {
-            console.log(response)
-            setData(response.data)
+          
+            setData(response)
           }) 
           .catch((error) => console.error(error));
 
@@ -172,6 +182,8 @@ export const Usuarios = () => {
       } else {
         const responseBody = await response.json();
         setstate({ ...state, error: responseBody.message });
+
+        setData([])
 
         setTimeout(() => {
           setstate({ ...state, error: null });
@@ -191,14 +203,16 @@ export const Usuarios = () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((response) => response.json())
       .then((response) => {
-        setData(response.data)
+        setData(response)
       }) 
       .catch((error) => console.error(error));
   }, []);
+
 
   return (
     <>
@@ -339,7 +353,7 @@ export const Usuarios = () => {
           </tr>
         </thead>
         <tbody>
-          {data?.map((item) => (
+            {data.length > 0 ? data?.map((item) => (
             <tr key={item.id}>
               <td>{item.id}</td>
               <td>{item.nombre}</td>
@@ -355,7 +369,8 @@ export const Usuarios = () => {
 
                 }}>Editar</Button></td>
             </tr>
-          ))}
+          )) : <tr><td colSpan="5">No hay datos</td></tr>}
+
         </tbody>
       </Table>
     </>

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
+import Modal from './../components/modal'
+
 
 const urlRoles = 'http://localhost:3000/api/roles';
 
@@ -11,12 +13,36 @@ export const Roles = () => {
   const [state, setState] = useState({
     error: null,
     success: null,
+    modalIsOpen: false,
+    selectedRol: {
+      editnombre: "",
+    }
   });
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };
+
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setState((previous) => ({...previous, selectedRol: {...previous.selectedRol, [name]: value}}))
+  }
+
+  const handleOpenModal = () => {
+    setState((previous) => ({...previous, modalIsOpen: true}));
+  };
+
+  const handleCloseModal = () => {
+    setState( previous => ({...previous, modalIsOpen: false}) );
+  };
+
+
+  const changeSelectedRol = (rol) => {
+    setState((previous => ({...previous, selectedRol: {
+      editnombre: rol.nombre,
+    } })))
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -39,7 +65,7 @@ export const Roles = () => {
         });
 
         setTimeout(() => {
-          setState({ ...state, success: null });
+          setState({ ...state, success: 'Rol Creado con exito' });
         }, 2000);
 
         loadData();
@@ -51,6 +77,68 @@ export const Roles = () => {
       setState({ ...state, error: 'Ha ocurrido un error' });
     }
   };
+
+  const handleSubmitEdit = async (event) => {
+    event.preventDefault();
+  
+    const rolId = state.selectedRol?.id;
+
+    const data = {
+      nombre: state.selectedRol?.editnombre,
+    }
+
+  
+    try {
+      const response = await fetch(`${urlRoles}/${rolId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (response.ok) {
+        setState(previous => ({...previous, success: "Rol actualizado con exito"}));
+        handleCloseModal();
+        setFormData({
+          nombre: "",
+          telefono: "",
+          email: "",
+          fecha_nacimiento: "",
+          password: "",
+          secondPassword: "",
+        });
+        fetch(urlRoles, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((response) => {
+            console.log(response)
+            setData(response.data)
+          }) 
+          .catch((error) => console.error(error));
+
+          setTimeout(() => {
+            setState(  previous => ({...previous, success: null}));
+          }, 2000);
+
+
+      } else {
+        const responseBody = await response.json();
+        setState({ ...state, error: responseBody.message });
+
+        setTimeout(() => {
+          setState({ ...state, error: null });
+        }, 2000);
+      }
+    } catch (error) {
+      setState({ ...state, error: "Ha ocurrido un error" });
+    }
+  };
+  
 
   const [data, setData] = useState([]);
 
@@ -70,6 +158,27 @@ export const Roles = () => {
 
   return (
     <>
+  <Modal isOpen={state.modalIsOpen} onClose={handleCloseModal}>
+      <h1>Editar Usuario</h1>
+      <Form onSubmit={handleSubmitEdit}>
+  <Form.Group>
+    <Form.Label>Nuevo nombre rol</Form.Label>
+    <Form.Control
+      type="text"
+      name="editnombre"
+      value={state.selectedRol.editnombre}
+      onChange={handleEditChange}
+    />
+  </Form.Group>
+
+  
+  <Button variant="primary" type="submit">
+    Actualizar Rol
+  </Button>
+</Form>
+
+    </Modal>
+
       {state.error ? (
         <div className="notificacion error">{state.error}</div>
       ) : null}
@@ -113,6 +222,14 @@ export const Roles = () => {
             <tr key={item.id}>
               <td>{item.id}</td>
               <td>{item.nombre}</td>
+              <td>
+                <Button onClick={() => {
+            
+              handleOpenModal();
+
+              changeSelectedRol(item);
+
+                }}>Editar</Button></td>
             </tr>
           ))}
         </tbody>
