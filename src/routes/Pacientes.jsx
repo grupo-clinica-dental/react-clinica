@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
 
-const url = "http://localhost:3000/api/pacientes";
+const url = "https://imagen-dental-api.onrender.com/api/pacientes";
 
 
 export const Pacientes = () => {
