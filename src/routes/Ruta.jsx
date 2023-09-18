@@ -1,329 +1,292 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Table, Modal } from 'react-bootstrap';
+import { Form, Button, Table } from 'react-bootstrap';
+import Modal from '../components/modal'; // Asegúrate de importar tu modal si lo tienes
+import { useAuthStore2 } from '../zustand-stores/auth-store';
+import { API_URL } from '../api/api.config';
 
-const apiUrl = "http://localhost:3000/api/rutas";
+const url = `${API_URL}/api/rutas`;
 
 export const Rutas = () => {
-  const [envio, setEnvio] = useState(0);
-  const [mensaje, setMensaje] = useState(null);
-  const [tipoMensaje, setTipoMensaje] = useState(null);
-
   const [formData, setFormData] = useState({
-    string_ruta: '',
+    nombre_ruta: '',
     activa: true,
-    fecha_borrado: null,
   });
 
-  const [rutaSeleccionadaId, setRutaSeleccionadaId] = useState(null);
-  const [rutaSeleccionada, setRutaSeleccionada] = useState({});
-  const [modalVisible, setModalVisible] = useState(false);
+  const [state, setState] = useState({
+    error: null,
+    success: null,
+    modalIsOpen: false,
+    selectedRuta: {
+      editnombre_ruta: '',
+      editactiva: true,
+    },
+  });
 
-  const cambioData = (event) => {
+  const token = useAuthStore2((state) => state.token);
+
+  const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const cambioData1 = (event) => {
+  const handleEditChange = (event) => {
     const { name, value } = event.target;
-    setRutaSeleccionada({ ...rutaSeleccionada, [name]: value });
+    setState((previous) => ({
+      ...previous,
+      selectedRuta: { ...previous.selectedRuta, [name]: value },
+    }));
   };
 
-  const mostrarMensaje = (mensaje, tipo) => {
-    setMensaje(mensaje);
-    setTipoMensaje(tipo);
-
-    // Borra el mensaje después de unos segundos (opcional)
-    setTimeout(() => {
-      setMensaje(null);
-      setTipoMensaje(null);
-    }, 5000); // Muestra el mensaje durante 5 segundos (puedes ajustarlo según tus preferencias)
+  const handleOpenModal = () => {
+    setState((previous) => ({ ...previous, modalIsOpen: true }));
   };
 
-  const handleEditarClick = async (id) => {
-    setRutaSeleccionadaId(id);
+  const handleCloseModal = () => {
+    setState((previous) => ({ ...previous, modalIsOpen: false }));
+  };
+
+  const changeSelectedRuta = (ruta) => {
+    setState((previous) => ({
+      ...previous,
+      selectedRuta: {
+        editnombre_ruta: ruta.nombre_ruta,
+        editactiva: ruta.activa,
+        id: ruta.id,
+      },
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     try {
-      const response = await fetch(`${apiUrl}/${id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const responseData = await response.json();
-        setRutaSeleccionada(responseData.ruta);
-        setModalVisible(true);
-      } else {
-        const responseBody = await response.json();
-        console.error("Error al obtener detalles de la ruta", responseBody);
-      }
-    } catch (error) {
-      console.error("Error al obtener detalles de la ruta", error);
-    }
-  };
-
-  const handleCancelarEdicion = () => {
-    setModalVisible(false);
-  };
-
-  const actualizarRuta = async () => {
-    try {
-      const response = await fetch(`${apiUrl}/${rutaSeleccionadaId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(rutaSeleccionada),
-      });
-
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log("Ruta actualizada exitosamente", responseData);
-        setModalVisible(false);
-        setEnvio(envio + 1);
-
-        // Mostrar mensaje de éxito
-        mostrarMensaje("Ruta actualizada exitosamente", "success");
-      } else {
-        const responseBody = await response.json();
-        console.error("Error al actualizar la ruta", responseBody);
-
-        // Mostrar mensaje de error
-        mostrarMensaje("Error al actualizar la ruta", "error");
-      }
-    } catch (error) {
-      console.error("Error al actualizar la ruta", error);
-
-      // Mostrar mensaje de error
-      mostrarMensaje("Error al actualizar la ruta", "error");
-    }
-  };
-
-  const handleEliminarClick = async (id) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar esta ruta?")) {
-      try {
-        const response = await fetch(`${apiUrl}/${id}`, {
-          method: 'DELETE',
-        });
-
-        if (response.ok) {
-          console.log("Ruta eliminada exitosamente");
-          setEnvio(envio + 1);
-
-          // Mostrar mensaje de éxito
-          mostrarMensaje("Ruta eliminada exitosamente", "success");
-        } else {
-          console.error("Error al eliminar la ruta:", response.statusText);
-
-          // Mostrar mensaje de error
-          mostrarMensaje("Error al eliminar la ruta", "error");
-        }
-      } catch (error) {
-        console.error("Error al eliminar la ruta", error);
-
-        // Mostrar mensaje de error
-        mostrarMensaje("Error al eliminar la ruta", "error");
-      }
-    }
-  };
-
-  const crearRuta = async () => {
-    try {
-      const response = await fetch(apiUrl, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        const responseData = await response.json();
-        console.log("Ruta creada exitosamente", responseData);
-        setEnvio(envio + 1);
-        setModalVisible(false);
+        setState({ ...state, success: 'Ruta creada con éxito' });
 
-        // Mostrar mensaje de éxito
-        mostrarMensaje("Ruta creada exitosamente", "success");
+        setFormData({
+          nombre_ruta: '',
+          activa: true,
+        });
+
+        setTimeout(() => {
+          setState({ ...state, success: null });
+        }, 2000);
+
+        fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((response) => setData(response))
+          .catch((error) => console.error(error));
       } else {
         const responseBody = await response.json();
-        console.error("Error al crear la ruta", responseBody);
 
-        // Mostrar mensaje de error
-        mostrarMensaje("Error al crear la ruta", "error");
+        setState({ ...state, error: responseBody.message });
+        setTimeout(() => {
+          setState((previous) => ({ ...previous, error: null }));
+        }, 2000);
       }
     } catch (error) {
-      console.error("Error al crear la ruta", error);
-
-      // Mostrar mensaje de error
-      mostrarMensaje("Error al crear la ruta", "error");
+      setState((previous) => ({ ...previous, error: 'Ha ocurrido un error' }));
     }
   };
 
-  const obtenerRutas = async () => {
+  const [data, setData] = useState([]);
+
+  const handleSubmitEdit = async (event) => {
+    event.preventDefault();
+
+    const rutaId = state.selectedRuta?.id;
+
+    const data = {
+      nombre_ruta: state.selectedRuta?.editnombre_ruta,
+      activa: state.selectedRuta?.editactiva,
+    };
+
     try {
-      const response = await fetch(apiUrl, {
-        method: 'GET',
+      const response = await fetch(`${url}/${rutaId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
-        const responseData = await response.json();
-        setRutas(responseData.rutas);
+        setState((previous) => ({
+          ...previous,
+          success: 'Ruta actualizada con éxito',
+        }));
+        handleCloseModal();
+        setFormData({
+          nombre_ruta: '',
+          activa: true,
+        });
+        fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((response) => {
+            setData(response);
+          })
+          .catch((error) => console.error(error));
+
+        setTimeout(() => {
+          setState((previous) => ({ ...previous, success: null }));
+        }, 2000);
       } else {
         const responseBody = await response.json();
-        console.error("Error al obtener las rutas", responseBody);
+        setState({ ...state, error: responseBody.message });
 
-        // Mostrar mensaje de error
-        mostrarMensaje("Error al obtener las rutas", "error");
+        setData([]);
+
+        setTimeout(() => {
+          setState({ ...state, error: null });
+        }, 2000);
       }
     } catch (error) {
-      console.error("Error al obtener las rutas", error);
-
-      // Mostrar mensaje de error
-      mostrarMensaje("Error al obtener las rutas", "error");
+      setState({ ...state, error: 'Ha ocurrido un error' });
     }
   };
 
-  const [rutas, setRutas] = useState([]);
-
   useEffect(() => {
-    obtenerRutas();
-  }, [envio]);
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        setData(response);
+      })
+      .catch((error) => console.error(error));
+  }, []);
 
   return (
     <>
-      {/* Formulario de Creación */}
-      <div className="container mt-2">
-        <div className="row">
-          <div className="col-md-8 offset-md-2">
-            <div className="card">
-              <div className="card-header">
-                Formulario de Creación de Ruta
-              </div>
-              <div className="card-body">
-                <Form>
-                  <Form.Group>
-                    <Form.Label>Nombre de Ruta</Form.Label>
-                    <Form.Control
-                      type='text'
-                      name='string_ruta'
-                      value={formData.string_ruta}
-                      onChange={cambioData}
-                    />
-                  </Form.Group>
+      <Modal isOpen={state.modalIsOpen} onClose={handleCloseModal}>
+        <h1>Editar Ruta</h1>
+        <Form onSubmit={handleSubmitEdit}>
+          <Form.Group>
+            <Form.Label>Nombre de Ruta</Form.Label>
+            <Form.Control
+              type="text"
+              name="editnombre_ruta"
+              value={state.selectedRuta.editnombre_ruta}
+              onChange={handleEditChange}
+            />
+          </Form.Group>
 
-                  <Form.Group>
-                    <Form.Label>Ruta Activa</Form.Label>
-                    <Form.Check
-                      type="checkbox"
-                      name="activa"
-                      checked={formData.activa}
-                      onChange={() => setFormData({ ...formData, activa: !formData.activa })}
-                    />
-                  </Form.Group>
-                  <div className="d-flex justify-content-end">
-                    <Button variant="primary" onClick={crearRuta}>
-                      Crear Ruta
-                    </Button>
-                  </div>
-                </Form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+          <Form.Group>
+            <Form.Label>Ruta Activa</Form.Label>
+            <Form.Check
+              type="checkbox"
+              name="editactiva"
+              checked={state.selectedRuta.editactiva}
+              onChange={handleEditChange}
+            />
+          </Form.Group>
 
-      {/* Lista de Rutas */}
-      <div className="container mt-2">
-        <div className="row">
-          <div className="col-md-12">
-            <h1 className="mb-4">Lista de Rutas</h1>
-            {mensaje && (
-              <Mensaje mensaje={mensaje} tipo={tipoMensaje} />
-            )}
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Nombre de Ruta</th>
-                  <th>Ruta Activa</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rutas.map((ruta) => (
-                  <tr key={ruta.id}>
-                    <td>{ruta.id}</td>
-                    <td>{ruta.nombre_ruta}</td>
-                    <td>{ruta.activa ? 'Sí' : 'No'}</td>
-                    <td>
-                      <Button variant="info" onClick={() => handleEditarClick(ruta.id)}>Editar</Button>{' '}
-                      <Button variant="danger" onClick={() => handleEliminarClick(ruta.id)}>Eliminar</Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal de Edición */}
-      <Modal show={modalVisible} onHide={handleCancelarEdicion}>
-        <Modal.Header closeButton>
-          <Modal.Title>Editar Ruta</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group>
-              <Form.Label>Nombre de Ruta</Form.Label>
-              <Form.Control
-                type='text'
-                name='string_ruta'
-                value={rutaSeleccionada ? rutaSeleccionada.string_ruta : ''}
-                onChange={cambioData1}
-              />
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>Ruta Activa</Form.Label>
-              <Form.Check
-                type="checkbox"
-                name="activa"
-                checked={rutaSeleccionada.activa || false}
-                onChange={() => setRutaSeleccionada({ ...rutaSeleccionada, activa: !rutaSeleccionada.activa })}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCancelarEdicion}>
-            Cancelar
+          <Button variant="primary" type="submit">
+            Actualizar Ruta
           </Button>
-          <Button variant="primary" onClick={actualizarRuta}>
-            Guardar Cambios
-          </Button>
-        </Modal.Footer>
+        </Form>
       </Modal>
+      <h1>Rutas</h1>
+
+      <Form onSubmit={handleSubmit}>
+        {state.error ? (
+          <div className="notificacion error">{state.error}</div>
+        ) : null}
+        {state.success ? (
+          <div className="notificacion success">{state.success}</div>
+        ) : null}
+
+        <Form.Group>
+          <Form.Label>Nombre de Ruta</Form.Label>
+          <Form.Control
+            type="text"
+            name="nombre_ruta"
+            value={formData.nombre_ruta}
+            onChange={handleChange}
+          />
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label>Ruta Activa</Form.Label>
+          <Form.Check
+            type="checkbox"
+            name="activa"
+            checked={formData.activa}
+            onChange={(e) => {
+              handleChange(e);
+            }}
+          />
+        </Form.Group>
+
+        <Button variant="primary" type="submit">
+          Enviar Datos
+        </Button>
+      </Form>
+
+      <h1>Reporte</h1>
+
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Nombre de Ruta</th>
+            <th>Ruta Activa</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.length > 0 ? (
+            data?.map((item) => (
+              <tr key={item.id}>
+                <td>{item.id}</td>
+                <td>{item.nombre_ruta}</td>
+                <td>{item.activa ? 'Sí' : 'No'}</td>
+                <td>
+                  <Button
+                    onClick={() => {
+                      handleOpenModal();
+                      changeSelectedRuta(item);
+                    }}
+                  >
+                    Editar
+                  </Button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3">No hay datos</td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
     </>
   );
-};
-
-const Mensaje = ({ mensaje, tipo }) => {
-  if (!mensaje) return null;
-
-  let className;
-  if (tipo === "success") {
-    className = "alert alert-success";
-  } else if (tipo === "error") {
-    className = "alert alert-danger";
-  }
-
-  return <div className={className}>{mensaje}</div>;
 };
 
 export default Rutas;
