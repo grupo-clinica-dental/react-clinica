@@ -1,12 +1,13 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
+import modal from '../components/modal';
+import { useAuthStore2 } from "../zustand-stores/auth-store";
+import { API_URL } from "../api/api.config";
 
-const url = "http://localhost:3000/api/citas";
-const urlDoctores = "http://localhost:3000/api/doctores";
-const urlEstados = "http://localhost:3000/api/estadoCita";
-const urlPacientes = "http://localhost:3000/api/pacientes";
+const url = "https://imagen-dental-api.onrender.com/api/citas";
+const urlDoctores = "https://imagen-dental-api.onrender.com/api/doctores";
+const urlEstados = "https://imagen-dental-api.onrender.com/api/estadoCita";
+const urlPacientes = "https://imagen-dental-api.onrender.com/api/pacientes";
 
 export const Citas = () => {
   const [formData, setFormData] = useState({

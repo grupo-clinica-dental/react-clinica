@@ -1,9 +1,16 @@
 import { React, useState, useEffect } from "react";
 import { Form, Button, Table } from "react-bootstrap";
+import modal from '../components/modal';
+import { useAuthStore2 } from "../zustand-stores/auth-store";
+import { API_URL } from "../api/api.config";
 
-var url = "https://imagen-dental-api.onrender.com/api/doctores";
+
+const url = `${API_URL}/api/doctores`;
 
 const Doctores = () => {
+
+  const token = useAuthStore2((state) => state.token)
+  
   const [formData, useFormData] = useState({
     nombre: "",
     correo_electronico: "",
@@ -49,11 +56,13 @@ const Doctores = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
       if (response.ok) {
         const responsebody = await response.json();
+        console.log(response);
 
         setstate({
           ...state,
@@ -107,6 +116,7 @@ const Doctores = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -139,6 +149,7 @@ const Doctores = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         }
         
       });
@@ -193,7 +204,12 @@ const Doctores = () => {
   const [Data, useData] = useState([]);
 
   const getDatos = async () => {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     const responseData = await response.json();
 
     if (response.ok) {
