@@ -1,7 +1,10 @@
 import { React, useState, useEffect } from "react";
 import { Form, Button, Table } from "react-bootstrap";
+import modal from '../components/modal';
+import { useAuthStore2 } from "../zustand-stores/auth-store";
+import { API_URL } from "../api/api.config";
 
-var url = "https://imagen-dental-api.onrender.com/api/especialidades";
+var url = `${API_URL}/api/especialidades`;
 
 const especialidades = () => {
   const [formData, useFormData] = useState({
@@ -43,6 +46,7 @@ const especialidades = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -94,6 +98,7 @@ const especialidades = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(formData),
         });
@@ -120,6 +125,7 @@ const especialidades = () => {
           method: 'DELETE',
           headers: {
             'Content-Type': "application/json",
+            Authorization: `Bearer ${token}`,
           }
           
         });
@@ -161,7 +167,12 @@ const especialidades = () => {
   const [Data, useData] = useState([]);
 
   const getDatos = async () => {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     const responseData = await response.json();
 
     if (response.ok) {
