@@ -57,7 +57,7 @@ const [state, setstate] = useState({
             setProfile(newResponse.data.profile)
             setTimeout(() => {
               navigate('/Inicio')
-            }, 2000);
+            }, 500);
           }
     
     
