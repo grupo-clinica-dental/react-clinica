@@ -7,6 +7,7 @@ import { API_URL } from "../api/api.config";
 var url = `${API_URL}/api/especialidades`;
 
 const especialidades = () => {
+  const token = useAuthStore2((state) => state.token)
   const [formData, useFormData] = useState({
     nombre: "",
   });
@@ -47,6 +48,7 @@ const especialidades = () => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          
         },
         body: JSON.stringify(formData),
       });
