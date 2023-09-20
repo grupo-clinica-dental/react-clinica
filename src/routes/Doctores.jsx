@@ -277,6 +277,9 @@ const Doctores = () => {
             onChange={cambiodata}
           />
         </Form.Group>
+        <Form.Select>
+          
+        </Form.Select>
         <br></br>
         <Button variant="primary" type="submit">
           Enviar Datos
