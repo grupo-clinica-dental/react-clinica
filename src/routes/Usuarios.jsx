@@ -27,11 +27,13 @@ export const Usuarios = () => {
       editemail: "",
       editpassword: "",
       editsecondPassword: "",
-    }
+    },
+    deleteOpen: false,
   });
 
 
   const token = useAuthStore2((state) => state.token)
+  
 
 
   const handleChange = (event) => {
@@ -51,7 +53,7 @@ export const Usuarios = () => {
   };
 
   const handleCloseModal = () => {
-    setstate( previous => ({...previous, modalIsOpen: false}) );
+    setstate( previous => ({...previous, modalIsOpen: false , deleteOpen: false }) );
   };
 
 
@@ -80,12 +82,13 @@ export const Usuarios = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
+        console.log(token)
         setstate({...state, success: 'Usuario creado con exito'})
 
         setFormData({
@@ -105,7 +108,8 @@ export const Usuarios = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            "Authorization": `Bearer ${token}`,
+            
           },
         })
           .then((response) => response.json())
@@ -113,6 +117,17 @@ export const Usuarios = () => {
           .catch((error) => console.error(error));
       } else {
         const responseBody = await response.json();
+
+        fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((response) => setData(response)) 
+          .catch((error) => console.error(error));
 
         setstate({...state, error: responseBody.message})
         setTimeout(() => {
@@ -139,15 +154,17 @@ export const Usuarios = () => {
       password: state.selectedUser?.editpassword,
     }
 
+
+  
   
     try {
       const response = await fetch(`${url}/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(data),
-        Authorization: `Bearer ${token}`,
       });
   
       if (response.ok) {
@@ -165,6 +182,7 @@ export const Usuarios = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
           },
         })
           .then((response) => response.json())
@@ -194,6 +212,65 @@ export const Usuarios = () => {
     }
   };
   
+  const handleDeleteUser = async (userId) => {
+
+
+    try {
+      const response = await fetch(`${url}/${userId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+  
+      if(response.ok) {
+        setstate(previous => ({...previous, success: "Usuario eliminado con exito", deleteOpen: false}));
+        fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((response) => {
+          
+            setData(response)
+          }) 
+          .catch((error) => console.error(error));
+        setTimeout(() => {
+          setstate(previous => ({...previous, success: null}));
+        }, 2000);
+      }else{
+        setstate({ ...state, error: "Ha ocurrido un error" });
+        fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((response) => {
+          
+            setData(response)
+          }) 
+          .catch((error) => console.error(error));
+        setTimeout(() => {
+          setstate({ ...state, error: null });
+        }, 2000);
+      }
+      
+    } catch (error) {
+      console.log(error)
+      setstate(previous => ({...previous, error: "Ha ocurrido un error"}));
+      setTimeout(() => {
+        setstate(previous => ({...previous, error: null}));
+      }, 2000);
+    }
+  
+  }
 
 
   useEffect(() => {
@@ -203,7 +280,7 @@ export const Usuarios = () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        "Authorization": `Bearer ${token}`,
       },
     })
       .then((response) => response.json())
@@ -276,6 +353,23 @@ export const Usuarios = () => {
 </Form>
 
     </Modal>
+    {/* modal eliminar */}
+    <Modal showCloseButton={false} isOpen={state.deleteOpen} onClose={handleCloseModal}>
+<div className="flex w-full flex-wrap gap-y-5 gap-x-5">
+  <h1>¿Estas seguro que deseas eliminar este usuario?</h1>
+  <div className="flex w-[40%] grow">
+  <Button className="w-full" variant="danger" onClick={() => {
+    handleDeleteUser(state.selectedUser.id);
+  } }>Eliminar</Button>
+  </div>    
+  <div className="flex w-[40%] grow">
+  <Button className="w-full" onClick={() => {
+    handleCloseModal();
+  } }>Cancelar</Button>
+  </div>    
+</div>
+    </Modal>
+
       <h1>Usuarios</h1>
 
       <Form onSubmit={handleSubmit}>
@@ -349,7 +443,6 @@ export const Usuarios = () => {
             <th>Nombre</th>
             <th>Teléfono</th>
             <th>Email</th>
-            <th>Fecha de Nacimiento</th>
           </tr>
         </thead>
         <tbody>
@@ -360,6 +453,12 @@ export const Usuarios = () => {
               <td>{item.telefono}</td>
               <td>{item.email}</td>
               <td>{item.fecha_nacimiento}</td>
+              <td>
+                <Button variant="danger" onClick={() => {
+                  changeSelectedUser(item);
+                  setstate(previous => ({...previous, deleteOpen: true}))
+                } }>Eliminar</Button>
+              </td>
               <td>
                 <Button onClick={() => {
             

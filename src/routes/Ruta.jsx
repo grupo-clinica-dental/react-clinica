@@ -73,7 +73,7 @@ export const Rutas = () => {
         setState({ ...state, success: 'Ruta creada con éxito' });
 
         setFormData({
-          nombre_ruta: '',
+          nombre_ruta: ' ',
           activa: true,
         });
 
