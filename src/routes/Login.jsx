@@ -77,7 +77,7 @@ const [state, setstate] = useState({
       }
     return (
 
-      <div style={{width: '100%'}}>
+      <div className="w-full">
           {state.error ? <div className="notificacion error">{state.error}</div> : null }
     {state.success ? <div className="notificacion success">{state.success}</div> : null }.
     
