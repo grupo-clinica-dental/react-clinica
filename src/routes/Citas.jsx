@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
-import modal from '../components/modal';
+import Modal from '../components/modal';
 import { useAuthStore2 } from "../zustand-stores/auth-store";
 import { API_URL } from "../api/api.config";
 
@@ -61,6 +61,9 @@ export const Citas = () => {
   const [estados, setEstados] = useState([]);
   const [pacientes, setPacientes] = useState([]);
 
+
+
+
   const enviarDataPost = async () => {
     try {
       const response = await fetch(url, {
@@ -116,12 +119,13 @@ export const Citas = () => {
         {
           method: "GET",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           }
         }
         );
       const responseData = await response.json();
-      if (response.ok && responseData.exito) {
+      if (response.ok) {
         setState(prev => ({ ...prev, citas: responseData.item_cita }));
       } else {
         setState(prev => ({ ...prev, error: "Error al obtener las citas" }));
@@ -134,7 +138,11 @@ export const Citas = () => {
   const eliminarCita = async (id) => {
     try {
       const response = await fetch(`${url}/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }
       });
       if (response.ok) {
         const responseData = await response.json();
@@ -144,9 +152,15 @@ export const Citas = () => {
         }
       } else {
         setState(prev => ({ ...prev, error: "Error al eliminar la cita" }));
+        setTimeout(() => {
+          setState(prev => ({ ...prev, error: null }));
+        }, 2000);
       }
     } catch (error) {
       setState(prev => ({ ...prev, error: "Error al eliminar cita" }));
+      setTimeout(() => {
+        setState(prev => ({ ...prev, error: null }));
+      }, 2000);
     }
   }
 
@@ -169,27 +183,42 @@ export const Citas = () => {
     }
   };
   
+  const fetchDoctores = async () => {
+    try {
+      const response = await fetch(urlDoctores, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      setDoctores(data);
+    } catch (error) {
+      console.error("Error obteniendo doctores:", error);
+    }
+  };
+
+  const fetchEstados = async () => {
+    try {
+      const response = await fetch(urlEstados, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      setEstados(data);
+    } catch (error) {
+      console.error("Error obteniendo estados:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchDoctores = async () => {
-      try {
-        const response = await fetch(urlDoctores);
-        const data = await response.json();
-        setDoctores(data);
-      } catch (error) {
-        console.error("Error obteniendo doctores:", error);
-      }
-    };
 
-    const fetchEstados = async () => {
-      try {
-        const response = await fetch(urlEstados);
-        const data = await response.json();
-        setEstados(data);
-      } catch (error) {
-        console.error("Error obteniendo estados:", error);
-      }
-    };
+
+    
     fetchDoctores();
     fetchEstados();
     fetchPacientes();
@@ -197,9 +226,12 @@ export const Citas = () => {
 
   }, []);
 
+
   return (
     <>
-    
+    <Modal isOpen={true}>
+      <h1>Modal</h1>
+    </Modal>
     <h2 className=" col-md-8 mx-auto">Registro de Citas</h2>
       <div className="container mt-2">
         <div className="card-body col-md-8 mx-auto">
