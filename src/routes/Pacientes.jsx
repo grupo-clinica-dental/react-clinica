@@ -296,7 +296,7 @@ export const Pacientes = () => {
       </div>
 
       {/* Modal de Edición */}
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+      <Modal className='w-[80%]' show={showEditModal} onHide={() => setShowEditModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Editar Paciente</Modal.Title>
         </Modal.Header>

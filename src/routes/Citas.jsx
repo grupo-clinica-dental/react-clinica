@@ -26,7 +26,20 @@ export const Citas = () => {
   const [state, setState] = useState({
     error: null,
     success: null,
-    citas: []
+    citas: [],
+    selectedCita: {
+      id: '',
+      edit_fecha_hora: '',
+      edit_doctor_id: '',
+      edit_paciente_id: '',
+      edit_estado_id: '',
+      edit_google_calendar_event_id: '',
+      edit_ubicacion: '',
+      edit_descripcion: '',
+      edit_notas: ''
+    },
+    isModalOpen: false,
+    deleteModalOpen: false,
   });
 
   const resetFormData = () => {
