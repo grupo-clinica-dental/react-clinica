@@ -257,77 +257,59 @@ export const Pacientes = () => {
         </div>
       </div>
 
-{/* Modal de Editar */}
-<Modal isOpen={state.editOpen} onClose={handleCloseModal}>
-  <div className="p-4">
-    <h1 className="mb-4">Editar Usuario</h1>
-    <form>
-      <div className="mb-3">
-        <label htmlFor="nombre" className="form-label">Nombre</label>
-        <input
-          type="text"
-          id="nombre"
-          name="nombre"
-          className="form-control"
-          value={formData.nombre}
-          onChange={cambioData}
-        />
-      </div>
-      <div className="mb-3">
-        <label htmlFor="telefono" className="form-label">Teléfono</label>
-        <input
-          type="tel"
-          id="telefono"
-          name="telefono"
-          className="form-control"
-          value={formData.telefono}
-          onChange={cambioData}
-        />
-      </div>
-      <div className="mb-3">
-        <label htmlFor="email" className="form-label">Email</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          className="form-control"
-          value={formData.email}
-          onChange={cambioData}
-        />
-      </div>
-      <div className="mb-3">
-        <label htmlFor="fecha_nacimiento" className="form-label">Fecha de Nacimiento</label>
-        <input
-          type="date"
-          id="fecha_nacimiento"
-          name="fecha_nacimiento"
-          className="form-control"
-          value={formData.fecha_nacimiento}
-          onChange={cambioData}
-        />
-      </div>
-      <div className="d-grid gap-2">
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={handleCloseModal}
-        >
-          Cancelar
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => {
-            enviarDataPUT();
-            handleCloseModal();
-          }}
-        >
-          Guardar Cambios
-        </button>
-      </div>
-    </form>
-  </div>
-</Modal>
+      {/* Modal de Edición */}
+      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Editar Paciente</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={enviarDatos}>
+            <Form.Group>
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control
+                type='text'
+                name='nombre'
+                value={formData.nombre}
+                onChange={cambioData}
+              />
+            </Form.Group>
+
+            <Form.Group>
+              <Form.Label>Teléfono</Form.Label>
+              <Form.Control
+                type='text'
+                name='telefono'
+                value={formData.telefono}
+                onChange={cambioData}
+              />
+            </Form.Group>
+
+            <Form.Group>
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type='email'
+                name='email'
+                value={formData.email}
+                onChange={cambioData}
+              />
+            </Form.Group>
+
+            <Form.Group>
+              <Form.Label>Fecha de Nacimiento</Form.Label>
+              <Form.Control
+                type='date'
+                name='fecha_nacimiento'
+                value={formData.fecha_nacimiento}
+                onChange={cambioData}
+              />
+            </Form.Group>
+
+            <div className="d-flex justify-content-end mt-3">
+              <Button variant='primary' type='submit'>Guardar Cambios</Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
 
 
 {/* Modal de Eliminar */}
