@@ -1,23 +1,40 @@
-import { React, useState, useEffect } from "react";
+import {  useState, useEffect } from "react";
 import { Form, Button, Table } from "react-bootstrap";
-import modal from '../components/modal';
+import Modal from '../components/modal';
 import { useAuthStore2 } from "../zustand-stores/auth-store";
 import { API_URL } from "../api/api.config";
 
 var url = `${API_URL}/api/especialidades`;
 
-const especialidades = () => {
-  const [formData, useFormData] = useState({
+const Especialidades = () => {
+  const token = useAuthStore2((state) => state.token)
+  const [formData, setFormData] = useState({
     nombre: "",
   });
 
   const [state, setstate] = useState({
     error: null,
     success: null,
+    modalIsOpen: false,
+    selectedEspecialidad: {
+      editnombre: "",
+    },
+    deleteOpen: false,
   });
 
+  const handleCloseModal = ()  => {
+    setstate(previous => ({...previous, modalIsOpen:false, deleteOpen: false}))
+  }
+
+  const changeSelectedEspecialidad = (item) => {
+    setstate(previous => ({...previous, selectedEspecialidad:  {
+      editnombre: item.nombre,
+      id: item.id
+    } }))
+  }
+
   const resetFormData = () => {
-    useFormData({
+    setFormData({
         id: "",
         nombre: "",
     })
@@ -25,7 +42,7 @@ const especialidades = () => {
 
   const cambiodata = (event) => {
     const { name, value } = event.target;
-    useFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: value });
   };
 
   const Enviardatos = async (event) => {
@@ -40,18 +57,18 @@ const especialidades = () => {
     
   };
 
-  const enviarDataPost = async (event) => {
+  const enviarDataPost = async () => {
     try {
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          
         },
         body: JSON.stringify(formData),
       });
       if (response.ok) {
-        const responsebody = await response.json();
         setstate({
             ...state,
             success: true,
@@ -65,7 +82,6 @@ const especialidades = () => {
         getDatos();
         formData.nombre = "";
       } else {
-        const responsebody = await response.json();
         setstate({
             ...state,
             error: "habia un error",
@@ -88,36 +104,50 @@ const especialidades = () => {
               error: "",
             });
           }, 2000);  
-      console.error("Error en enviar los datos", datos);
+      console.error("Error en enviar los datos");
     }
   }
 
-  const enviarDataPUT = async () => {
+  const enviarDataPUT = async (e ) => {
+    e.preventDefault();
+
+    const data = {
+        nombre: state.selectedEspecialidad.editnombre,
+        id: state.selectedEspecialidad.id
+    }
+    
+
     try {
-        const response = await fetch(url + '/' + formData.id, {
+        const response = await fetch(url + '/' + data.id, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(data),
         });
         if (response.ok) {
-          const responsebody = await response.json();
-          
+          setstate(previous => ({...previous, modalIsOpen:false, success: 'Especialidad actualizada con exito'}))
           getDatos();
-          resetFormData();
-          formData.nombre = "";
-        } else {
-          const responsebody = await response.json();
-          
+          setTimeout(() => {
+            setstate(previous => ({...previous, success: ''}))
+          }, 2000);
+        } else{
+          setstate(previous => ({...previous, modalIsOpen:false, error: 'Error al actualizar la especialidad'}))
+          setTimeout(() => {
+            setstate(previous => ({...previous, error: ''}))
+          }, 2000);
         }
       } catch (error) {
-          
-        console.error("Error en enviar los datos", datos);
+          setstate(previous => ({...previous, modalIsOpen:false, error: 'Error al actualizar la especialidad'}))
+          setTimeout(() => {
+            setstate(previous => ({...previous, error: ''}))
+          }, 2000);
+        console.log(error)
       }
 
   }
+
 
   async function enviarDataDelete(item){
     try {
@@ -131,40 +161,29 @@ const especialidades = () => {
         });
 
         if (response.ok) {
-          const responsebody = await response.json();
           
           getDatos();
           resetFormData();
           
-        } else {
-          const responsebody = await response.json();
-          
-        }
+        } 
       } catch (error) {
           
-        console.error("Error en enviar los datos", datos);
+        console.error("Error en enviar los datos");
       }
   }
 
-  function actualizarForm(item){
-    resetFormData();
-    let arreglo = {
-        id: item.id,
-        nombre: item.nombre
-    }
-    useFormData(arreglo);
-  }
+  // const  actualizarForm = (item) =>  {
+  //   resetFormData();
+  //   let arreglo = {
+  //       id: item.id,
+  //       nombre: item.nombre
+  //   }
+  //   setFormData(arreglo);
+  // }
 
-  function actualizarForm(item){
-    resetFormData();
-    let arreglo = {
-        id: item.id,
-        nombre: item.nombre
-    }
-    useFormData(arreglo);
-  }
 
-  const [Data, useData] = useState([]);
+
+  const [Data, setData] = useState([]);
 
   const getDatos = async () => {
     const response = await fetch(url, {
@@ -176,9 +195,9 @@ const especialidades = () => {
     const responseData = await response.json();
 
     if (response.ok) {
-      useData(responseData);
+      setData(responseData);
     }else{
-      useData([]);
+      setData([]);
       resetFormData();
     }
   };
@@ -193,8 +212,30 @@ const especialidades = () => {
         <div className="notificacion error">{state.error}</div>
       ) : null}
       {state.success ? (
-        <div className="notificacion success">Doctor creado fue un exicto</div>
+        <div className="notificacion success">{state.success}</div>
       ) : null}
+
+  <Modal isOpen={state.modalIsOpen} onClose={handleCloseModal}>
+  <h1>Editar Especialidad</h1>
+      <Form className="flex flex-col gap-y-8" onSubmit={enviarDataPUT} >
+  <Form.Group>
+    <Form.Label>Nombre</Form.Label>
+    <Form.Control
+      type="text"
+      name="editnombre"
+      onChange={(e) => {
+        setstate(previous => ({...previous, selectedEspecialidad: {...previous.selectedEspecialidad, editnombre: e.target.value}}))
+      }}
+      value={state.selectedEspecialidad.editnombre}
+    />
+  </Form.Group>
+
+  <Button variant="primary" type="submit">
+    Actualizar Especialidad
+  </Button>
+  </Form>
+  </Modal>
+
       <h2> Especialidades</h2>
       <Form onSubmit={Enviardatos}>
         <Form.Group>
@@ -235,12 +276,15 @@ const especialidades = () => {
             <tr key={item.id}>
               <td>{item.nombre}</td>
               <td>
-                <button type="button" class="btn btn-warning" onClick={() => actualizarForm(item)}>
+                <button type="button" className="btn btn-warning" onClick={() => {
+                    changeSelectedEspecialidad(item);
+                  setstate(previous => ({...previous, modalIsOpen:true}))
+              }}>
                   Actualizar
                 </button>
               </td>
               <td>
-                <button type="button" class="btn btn-danger" onClick={() => enviarDataDelete(item)}>
+                <button type="button" className="btn btn-danger" onClick={() => enviarDataDelete(item)}>
                   Eliminar
                 </button>
               </td>
@@ -252,4 +296,4 @@ const especialidades = () => {
   );
 };
 
-export default especialidades;
+export default Especialidades;

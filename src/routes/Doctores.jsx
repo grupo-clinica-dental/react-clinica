@@ -15,6 +15,7 @@ const Doctores = () => {
     nombre: "",
     correo_electronico: "",
     color: "#FFFFFF",
+    especialidadId: 0,
   });
 
   const [state, setstate] = useState({
@@ -81,10 +82,11 @@ const Doctores = () => {
         formData.color = "#FFFFFF"
       } else {
         const responsebody = await response.json();
+        
        
         setstate({
           ...state,
-          error: "habia un error.",
+          error: responsebody.message,
         });
         setTimeout(() => {
           setstate({
@@ -277,6 +279,21 @@ const Doctores = () => {
             onChange={cambiodata}
           />
         </Form.Group>
+
+        <Form.Group>
+          <Form.Label>Especialidad</Form.Label>
+          <Form.Select
+            type="color"
+            name="especialidadId"
+            
+            value={formData.especialidadId}
+            onChange={cambiodata}
+          >
+            <option value="0">Seleccione una especialidad</option>
+            <option value="1">Medicina General</option>
+          </Form.Select>
+        </Form.Group>
+
         <br></br>
         <Button variant="primary" type="submit">
           Enviar Datos

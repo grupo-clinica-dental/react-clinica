@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
 import { useAuthStore2 } from "../zustand-stores/auth-store";
 import { API_URL } from "../api/api.config";
@@ -85,10 +85,8 @@ export const Pacientes = () => {
       });
 
       if (response.ok) {
-        const responseData = await response.json();
-        setState({
-          ...state,
-          success: true
+        setstate({
+          ...state, success: 'Paciente creado con exito'
         });
         setTimeout(() => {
           setState({
