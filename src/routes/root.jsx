@@ -1,7 +1,6 @@
 import { Link, Outlet,   Form } from "react-router-dom";
 import { ProtectedRoute } from "../main";
 import { router } from "../main";
-import { useAuthStore2 } from "../zustand-stores/auth-store";
 
 
 
@@ -47,7 +46,7 @@ export default function Root() {
           <nav>
           <ul>
                 <li key={router.path}>
-                  <Link to={`/`}>
+                  <Link to={`/Inicio`}>
                     Inicio
                   </Link>
                 </li>

@@ -426,3 +426,20 @@ i {
   width: 60%;
   position: relative;
 }
+
+.login-page{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-wrap: wrap;
+}
+
+.login-page form{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+}

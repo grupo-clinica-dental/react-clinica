@@ -56,7 +56,7 @@ const [state, setstate] = useState({
             setToken(newResponse.data.token)
             setProfile(newResponse.data.profile)
             setTimeout(() => {
-              navigate('/')
+              navigate('/Inicio')
             }, 2000);
           }
     
@@ -77,15 +77,16 @@ const [state, setstate] = useState({
       }
     return (
 
-      <div>
+      <div style={{width: '100%'}}>
           {state.error ? <div className="notificacion error">{state.error}</div> : null }
     {state.success ? <div className="notificacion success">{state.success}</div> : null }.
     
 
-    <div>
-  <h1>Iniciar Sesion</h1>
+    <div className="login-page">
   <span>{state.error ? state.error : null}</span>
       <Form onSubmit={handleSubmit}>
+  <h1>Iniciar Sesion</h1>
+
   <Form.Group>
     <Form.Label>Email</Form.Label>
     <Form.Control
@@ -113,7 +114,7 @@ const [state, setstate] = useState({
 
 
   <Button variant="primary" type="submit">
-    Actualizar Usuario
+    Iniciar Sesion
   </Button>
 </Form>
         </div>

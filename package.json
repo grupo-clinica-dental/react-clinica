@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.8",
+    "@fullcalendar/daygrid": "^6.1.8",
+    "@fullcalendar/react": "^6.1.8",
     "bootstrap": "^5.3.1",
     "cors": "^2.8.5",
     "localforage": "^1.10.0",

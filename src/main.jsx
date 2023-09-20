@@ -21,8 +21,10 @@ import Permisos from "./routes/Permisos1";
 import EstadosCita from "./routes/EstadosCita";
 import LoginPage from "./routes/Login";
 
+
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore2 } from "./zustand-stores/auth-store";
+import Inicio from "./routes/Inicio";
 
 
 export const ProtectedRoute = ({
@@ -45,16 +47,23 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
-    name:'Inicio',
+    name:'/',
     errorElement: <ErrorPage />,
     children: [
+      {
+        path: "/Inicio",
+        index: true,
+        element: <ProtectedRoute> <Inicio /> </ProtectedRoute>,
+        name:'Inicio',
+        errorElement: <ErrorPage />,
+
+      },
       {
         path: "contacts/:contactId",
         element: <ProtectedRoute> <Contact /> </ProtectedRoute>,
       },
       {
         path: "/Doctores",
-        index: true,
         element: <ProtectedRoute> <Doctores /> </ProtectedRoute>,
         name:'Doctores',
         errorElement: <ErrorPage />,
