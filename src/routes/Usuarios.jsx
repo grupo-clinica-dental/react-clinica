@@ -352,6 +352,8 @@ export const Usuarios = () => {
   </Button>
 </Form>
 
+
+
     </Modal>
     {/* modal eliminar */}
     <Modal showCloseButton={false} isOpen={state.deleteOpen} onClose={handleCloseModal}>
