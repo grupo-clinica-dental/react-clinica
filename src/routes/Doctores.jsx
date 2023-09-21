@@ -33,7 +33,7 @@ const Doctores = () => {
     },
     deleteOpen: false,
   });
-
+  
   const handleCloseModal = () => {
     setstate(previous => ({...previous, modalIsOpen: false, deleteOpen: false}))
   }
@@ -396,6 +396,7 @@ const Doctores = () => {
             <th></th>
             <th></th>
           </tr>
+          
         </thead>
         <tbody>
           {state.doctores.map((item) => (
@@ -404,6 +405,7 @@ const Doctores = () => {
               <td>{item.correo_electronico}</td>
               <td style={{ backgroundColor: `${item.color}` }}> </td>
               <td>{item.especialidadId}</td>
+              
               <td>
                 <button type="button" className="btn btn-warning" onClick={() => {
                   changeSelectedDoctor(item);
