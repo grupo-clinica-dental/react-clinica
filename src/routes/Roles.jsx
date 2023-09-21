@@ -1,152 +1,175 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Table } from 'react-bootstrap';
-import Modal from './../components/modal'
+import Modal from '../components/modal';
+import { useAuthStore2 } from '../zustand-stores/auth-store';
+import { API_URL } from '../api/api.config';
 
-
-const urlRoles = 'http://localhost:3000/api/roles';
+const url = `${API_URL}/api/roles`;
 
 export const Roles = () => {
+  const token = useAuthStore2((state) => state.token);
+
   const [formData, setFormData] = useState({
     nombre: '',
   });
 
   const [state, setState] = useState({
     error: null,
+    roles: [],
     success: null,
     modalIsOpen: false,
+    deleteOpen: false,
+    editOpen: false,
     selectedRol: {
-      editnombre: "",
-    }
+      editId: '',
+      editNombre: '',
+    },
   });
+
+  const resetFormData = () => {
+    setFormData({
+      nombre: '',
+    });
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleEditChange = (event) => {
+  const handleChangeEdit = (event) => {
     const { name, value } = event.target;
-    setState((previous) => ({...previous, selectedRol: {...previous.selectedRol, [name]: value}}))
-  }
-
-  const handleOpenModal = () => {
-    setState((previous) => ({...previous, modalIsOpen: true}));
+    setState((previous) => ({
+      ...previous,
+      selectedRol: { ...previous.selectedRol, [name]: value },
+    }));
   };
 
-  const handleCloseModal = () => {
-    setState( previous => ({...previous, modalIsOpen: false}) );
+  const resetError = () => {
+    setTimeout(() => {
+      setState((previous) => ({ ...previous, error: null }));
+    }, 2000);
   };
 
-
-  const changeSelectedRol = (rol) => {
-    setState((previous => ({...previous, selectedRol: {
-      editnombre: rol.nombre,
-    } })))
-  }
+  const resetSuccess = () => {
+    setTimeout(() => {
+      setState((previous) => ({ ...previous, success: null }));
+    }, 2000);
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await fetch(urlRoles, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        const responseData = await response.json();
-        setState({ ...state, success: responseData.message });
-
-        setFormData({
-          nombre: '',
+        setState({
+          ...state,
+          success: 'Rol creado con éxito',
         });
-
-        setTimeout(() => {
-          setState({ ...state, success: 'Rol Creado con exito' });
-        }, 2000);
-
         loadData();
+        resetFormData();
+        resetSuccess();
       } else {
         const responseBody = await response.json();
         setState({ ...state, error: responseBody.message });
+        resetError();
       }
     } catch (error) {
-      setState({ ...state, error: 'Ha ocurrido un error' });
+      setState({ ...state, error: 'Error al enviar datos' });
+      resetError();
     }
   };
 
   const handleSubmitEdit = async (event) => {
     event.preventDefault();
-  
-    const rolId = state.selectedRol?.id;
 
     const data = {
-      nombre: state.selectedRol?.editnombre,
-    }
+      id: state.selectedRol.editId,
+      nombre: state.selectedRol.editNombre,
+    };
 
-  
     try {
-      const response = await fetch(`${urlRoles}/${rolId}`, {
-        method: "PUT",
+      const response = await fetch(`${url}/${data.id}`, {
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
-  
+
       if (response.ok) {
-        setState(previous => ({...previous, success: "Rol actualizado con exito"}));
-        handleCloseModal();
-        setFormData({
-          nombre: "",
-          telefono: "",
-          email: "",
-          fecha_nacimiento: "",
-          password: "",
-          secondPassword: "",
+        setState({
+          ...state,
+          success: 'Rol actualizado con éxito',
+          editOpen: false,
         });
-        fetch(urlRoles, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
-          .then((response) => {
-            console.log(response)
-            setData(response.data)
-          }) 
-          .catch((error) => console.error(error));
-
-          setTimeout(() => {
-            setState(  previous => ({...previous, success: null}));
-          }, 2000);
-
-
+        loadData();
+        resetSuccess();
       } else {
         const responseBody = await response.json();
         setState({ ...state, error: responseBody.message });
-
-        setTimeout(() => {
-          setState({ ...state, error: null });
-        }, 2000);
+        resetError();
       }
     } catch (error) {
-      setState({ ...state, error: "Ha ocurrido un error" });
+      setState({ ...state, error: 'Error al enviar datos' });
+      resetError();
     }
   };
-  
 
-  const [data, setData] = useState([]);
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`${url}/${state.selectedRol.editId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setState({
+          ...state,
+          success: 'Rol eliminado con éxito',
+          deleteOpen: false,
+        });
+        loadData();
+        resetFormData();
+      } else {
+        const responseBody = await response.json();
+        setState({ ...state, error: responseBody.message });
+        resetError();
+      }
+    } catch (error) {
+      setState({ ...state, error: 'Error al enviar datos' });
+      resetError();
+    }
+  };
 
   const loadData = async () => {
     try {
-      const response = await fetch(urlRoles);
-      const responseData = await response.json();
-      setData(responseData);
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const responseData = await response.json();
+        setState((previous) => ({
+          ...previous,
+          roles: responseData,
+        }));
+        console.log("Datos cargados:", responseData);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     }
@@ -154,86 +177,149 @@ export const Roles = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [token]);
+
+  console.log('Datos en state.roles:', state.roles);
 
   return (
     <>
-  <Modal isOpen={state.modalIsOpen} onClose={handleCloseModal}>
-      <h1>Editar Usuario</h1>
-      <Form onSubmit={handleSubmitEdit}>
-  <Form.Group>
-    <Form.Label>Nuevo nombre rol</Form.Label>
-    <Form.Control
-      type="text"
-      name="editnombre"
-      value={state.selectedRol.editnombre}
-      onChange={handleEditChange}
-    />
-  </Form.Group>
+      <h2>Registro de Roles</h2>
+      <div className="container mt-2">
+        <div className="card-body">
+          <Form onSubmit={handleSubmit}>
+            {state.error ? (
+              <div className="notificacion error">{state.error}</div>
+            ) : null}
+            {state.success ? (
+              <div className="notificacion success">{state.success}</div>
+            ) : null}
+            <Form.Group>
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control
+                type="text"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+              />
+            </Form.Group>
 
-  
-  <Button variant="primary" type="submit">
-    Actualizar Rol
-  </Button>
-</Form>
-
-    </Modal>
-
-      {state.error ? (
-        <div className="notificacion error">{state.error}</div>
-      ) : null}
-      {state.success ? (
-        <div className="notificacion success">{state.success}</div>
-      ) : null}
-
-      <h1>Roles</h1>
-      <Form onSubmit={handleSubmit} className="py-5">
-        <Form.Group className="mt-2">
-          <Form.Label>Nombre</Form.Label>
-          <Form.Control
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-        <Button className="mt-5" variant="primary" type="submit">
-          Enviar Datos
-        </Button>
-      </Form>
-
-      <h1>Reporte</h1>
-      {data.length === 0 && (
-        <div>
-          <span style={{ color: 'black' }}>No hay datos</span>
+            <Button type="submit">Guardar</Button>
+          </Form>
         </div>
-      )}
+        <div>
+          <div className="mt-5">
+            <Table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Editar</th>
+                  <th>Eliminar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {state.roles && state.roles.length > 0 ? (
+                  state.roles.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.id}</td>
+                      <td>{item.nombre}</td>
+                      <td>
+                        <button
+                          onClick={() => {
+                            setState((previous) => ({
+                              ...previous,
+                              selectedRol: {
+                                editId: item.id,
+                                editNombre: item.nombre,
+                              },
+                              editOpen: true,
+                            }));
+                          }}
+                        >
+                          Editar
+                        </button>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => {
+                            setState((previous) => ({
+                              ...previous,
+                              selectedRol: {
+                                editId: item.id,
+                                editNombre: item.nombre,
+                              },
+                              deleteOpen: true,
+                            }));
+                          }}
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4">No hay datos disponibles</td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+          </div>
+        </div>
+      </div>
 
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Nombre</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>{item.nombre}</td>
-              <td>
-                <Button onClick={() => {
-            
-              handleOpenModal();
+      {/* Modal de Editar */}
+      <Modal
+        isOpen={state.editOpen}
+        onClose={() => setState((previous) => ({ ...previous, editOpen: false }))}
+      >
+        <div className>
+          <h1>Editar Rol</h1>
+          <Form onSubmit={handleSubmitEdit}>
+            <Form.Group>
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control
+                type="text"
+                name="editNombre"
+                value={state.selectedRol.editNombre}
+                onChange={handleChangeEdit}
+              />
+            </Form.Group>
+            <div className='d-flex justify-content-end gap-3 mt-7'>
+            <Button
+              variant="secondary"
+              onClick={() => setState((previous) => ({ ...previous, editOpen: false }))}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit">Guardar Cambios</Button>
+            </div>
+          </Form>
+          
+        </div>
+      </Modal>
 
-              changeSelectedRol(item);
-
-                }}>Editar</Button></td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      {/* Modal de Eliminar */}
+      <Modal
+        showCloseButton={false}
+        isOpen={state.deleteOpen}
+        onClose={() => setState((previous) => ({ ...previous, deleteOpen: false }))}
+      >
+        <div className>
+          <h5>¿Estás seguro que deseas eliminar este rol?</h5>
+          <div className="d-flex justify-content-end gap-3 mt-7">
+            <Button variant="danger" onClick={handleDelete}>
+              Eliminar
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setState((previous) => ({ ...previous, deleteOpen: false }))}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };
