@@ -1,262 +1,352 @@
-import { useState, useEffect } from "react";
-import { Form, Button, Table } from "react-bootstrap";
-import Modal from './../components/modal'
+import { useState, useEffect } from 'react';
+import { Form, Button, Table } from 'react-bootstrap';
+import { useAuthStore2 } from "../zustand-stores/auth-store";
+import { API_URL } from "../api/api.config";
+import Modal from "../components/modal";
 
-const urlEstadosCita = "http://localhost:3000/api/estadoCita";
+const url = `${API_URL}/api/estadoCita`;
 
 export const EstadosCita = () => {
+  const token = useAuthStore2((state) => state.token);
   const [formData, setFormData] = useState({
-    estado: "",
-    activo: true,
+    id: '',
+    estado: 'Confirmada',
+    activo: true
   });
 
   const [state, setState] = useState({
     error: null,
+    estadosCita: [],
     success: null,
     modalIsOpen: false,
-    selectedEstado: {
-      editnombre: "",
+    deleteOpen: false,
+    editOpen: false,
+    selectedEstadoCita: {
+      editId: '',
+      editEstado: 'Confirmada',
+      editActivo: true
     }
   });
 
-  const handleChange = (event) => {
+  const resetFormData = () => {
+    setFormData({
+      id: '',
+      estado: 'Confirmada',
+      activo: true
+    });
+  };
+
+  const cambioData = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleEditChange = (event) => {
-    const { name, value } = event.target;
-    setState((previous) => ({...previous, selectedEstado: {...previous.selectedEstado, [name]: value}}))
+  const cambioDataEditar = (event) => {
+    const { name, value, type, checked } = event.target;
+    const newValue = type === 'checkbox' ? checked : value;
+    setState((previous) => ({
+      ...previous,
+      selectedEstadoCita: {
+        ...previous.selectedEstadoCita,
+        [name]: newValue,
+      },
+    }));
+  };
+  
+
+  const resetError = () => {
+    setTimeout(() => {
+      setState(previous => ({ ...previous, error: '' }));
+    }, 2000);
   }
 
-  const handleOpenModal = () => {
-    setState((previous) => ({...previous, modalIsOpen: true}));
+  const resetSuccess = () => {
+    setTimeout(() => {
+      setState(previous => ({
+        ...previous, success: ''
+      }));
+    }, 2000);
+  }
+
+  const enviarDatos = async (event) => {
+    event.preventDefault();
+
+    if (formData.id) {
+      enviarDataPUT();
+    } else {
+      enviarDataPost();
+    }
+  };
+
+  const [datos, setDatos] = useState([]);
+
+  const getDatos = async () => {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    const responseData = await response.json();
+
+    if (response.ok) {
+      setDatos(responseData);
+    } else {
+      setDatos([]);
+      resetFormData();
+    }
+  };
+
+  const enviarDataPost = async () => {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        setState({
+          ...state, success: 'Estado de cita creado con éxito'
+        });
+        getDatos();
+        resetFormData();
+        resetSuccess();
+      } else {
+        setState({
+          ...state, error: 'Error al enviar datos'
+        });
+        resetError()
+      }
+    } catch (error) {
+      setState({
+        ...state, error: "Error al enviar datos"
+      });
+      resetError()
+    }
+  };
+
+  const enviarDataPUT = async () => {
+    const data = {
+      id: state.selectedEstadoCita.editId,
+      estado: state.selectedEstadoCita.editEstado,
+      activo: state.selectedEstadoCita.editActivo,
+    };
+    
+  
+    try {
+      const response = await fetch(`${url}/${data.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data)
+      });
+  
+      if (response.ok) {
+        setState(previous => ({ ...previous, success: 'Estado de cita actualizado con éxito' }));
+        getDatos();
+        resetSuccess();
+      } else {
+        setState(previous => ({ ...previous, error: 'Error al enviar datos' }));
+        resetError();
+      }
+    } catch (error) {
+      console.error("Error al enviar datos", error);
+      resetError();
+    }
+  };
+  
+  const enviarDataDelete = async () => {
+    try {
+      const { editId } = state.selectedEstadoCita;
+      const response = await fetch(`${url}/${editId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }
+      });
+  
+      if (response.ok) {
+        // Eliminación exitosa, ahora puedes mostrar el mensaje de éxito
+        setState(previous => ({ ...previous, success: 'Estado de cita eliminado con éxito' }));
+        
+        // Actualiza la lista de datos después de la eliminación
+        const updatedDatos = datos.filter(item => item.id !== editId);
+        setDatos(updatedDatos);
+  
+        // Cierra el modal
+        handleCloseModal();
+  
+        // Borra el mensaje de éxito después de 2 segundos (2000 ms)
+        setTimeout(() => {
+          setState(previous => ({ ...previous, success: null }));
+        }, 2000);
+      } else {
+        setState(previous => ({ ...previous, error: 'Error al enviar datos' }));
+        resetError();
+      }
+    } catch (error) {
+      setState(previous => ({ ...previous, error: 'Error al enviar datos' }));
+      resetError();
+    }
+  }
+  
+  
+  const handleOpenModal = (modalName) => {
+    setState((previous) => ({ ...previous, [modalName]: true }));
   };
 
   const handleCloseModal = () => {
-    setState( previous => ({...previous, modalIsOpen: false}) );
+    setState(previous => ({
+      ...previous,
+      modalIsOpen: false,
+      deleteOpen: false,
+      editOpen: false
+    }));
   };
-
-
- const changeSelectedEstado = (estado) => {
-    setState((previous => ({...previous, selectedEstado: {
-      editnombre: estado.estado,
-    } })))
-  }
-
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    try {
-      const response = await fetch(urlEstadosCita, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        setState({ ...state, success: 'Estado de cita creado con exito' });
-
-        setFormData({
-          estado: "",
-          activo: true,
-          fecha_borrado: ""
-        });
-
-        setTimeout(() => {
-          setState({ ...state, success: null });
-        }, 2000);
-
-      loadData()
-      } else {
-        const responseBody = await response.json();
-        setState({ ...state, error: responseBody.message });
-        setTimeout(() => {
-          setState({ ...state, error: null });
-        }, 2000);
-      }
-    } catch (error) {
-      setState({ ...state, error: 'Ha ocurrido un error' });
-    }
-  };
-
-  const handleSubmitEdit = async (event) => {
-    event.preventDefault();
-  
-    const estadoId = state.selectedEstado?.id;
-
-    const data = {
-      estado: state.selectedEstado?.editnombre,
- 
-    }
-
-  
-    try {
-      const response = await fetch(`${urlEstadosCita}/${estadoId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-  
-      if (response.ok) {
-        setState(previous => ({...previous, success: "Estado actualizado con exito"}));
-        handleCloseModal();
-        setFormData({
-          nombre: "",
-          telefono: "",
-          email: "",
-          fecha_nacimiento: "",
-          password: "",
-          secondPassword: "",
-        });
-        fetch(urlEstadosCita, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
-          .then((response) => {
-            console.log(response)
-            setData(response.data)
-          }) 
-          .catch((error) => console.error(error));
-
-          setTimeout(() => {
-            setState(  previous => ({...previous, success: null}));
-          }, 2000);
-
-
-      } else {
-        const responseBody = await response.json();
-        setState({ ...state, error: responseBody.message });
-
-        setTimeout(() => {
-          setState({ ...state, error: null });
-        }, 2000);
-      }
-    } catch (error) {
-      setState({ ...state, error: "Ha ocurrido un error" });
-    }
-  };
-
-  const [data, setData] = useState([]);
-
-  const loadData = ()  => {
-    fetch(urlEstadosCita, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((response) => setData(response.data))
-        .catch((error) => console.error(error));
-  }
 
   useEffect(() => {
-  loadData();
+    getDatos();
   }, []);
 
   return (
     <>
-   <Modal isOpen={state.modalIsOpen} onClose={handleCloseModal}>
-      <h1>Editar Usuario</h1>
-      <Form onSubmit={handleSubmitEdit}>
-  <Form.Group>
-    <Form.Label>Nuevo nombre rol</Form.Label>
-    <Form.Control
-      type="text"
-      name="editnombre"
-      value={state.selectedEstado.editnombre}
-      onChange={handleEditChange}
-    />
-  </Form.Group>
+      <h2>Estados de Citas</h2>
+      <div className="container mt-2">
+        <div className="card-body">
+          <Form onSubmit={enviarDatos}>
+            {state.error ? <div className="notificacion error">{state.error}</div> : null}
+            {state.success ? <div className="notificacion success">{state.success}</div> : null}
+            <Form.Group>
+              <Form.Label>Estado</Form.Label>
+              <Form.Control
+                as="select"
+                name="estado"
+                value={formData.estado}
+                onChange={cambioData}
+              >
+                <option value="Confirmada">Confirmada</option>
+                <option value="Cancelada">Cancelada</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Pospuesta">Pospuesta</option>
+              </Form.Control>
+            </Form.Group>
 
-  
-  <Button variant="primary" type="submit">
-    Actualizar Estado Cita
-  </Button>
-</Form>
+            <Form.Group>
+              <Form.Label>Activo</Form.Label>
+              <Form.Check
+                type="checkbox"
+                name="activo"
+                checked={formData.activo}
+                onChange={cambioData}
+              />
+            </Form.Group>
 
-    </Modal>
+            <Button type="submit">Guardar</Button>
+          </Form>
+        </div>
+        <div>
+          <div className="mt-5">
+            <Table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Estado</th>
+                  <th>Activo</th>
+                  <th>Editar</th>
+                  <th>Eliminar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {datos.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.id}</td>
+                    <td>{item.estado}</td>
+                    <td>{item.activo ? 'Sí' : 'No'}</td>
+                    <td>
+                      <button onClick={() => {
+                        setState(previous => ({ ...previous, selectedEstadoCita: { ...previous.selectedEstadoCita, editId: item.id, editEstado: item.estado, editActivo: item.activo } }))
+                        handleOpenModal("editOpen");
+                      }}>Editar</button>
+                    </td>
+                    <td>
+                      <button onClick={() => {
+                        setState(previous => ({ ...previous, selectedEstadoCita: { ...previous.selectedEstadoCita, editId: item.id } }))
+                        handleOpenModal("deleteOpen");
+                      }}>Eliminar</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </div>
+      </div>
 
-   {state.error ? (
-        <div className="notificacion error">{state.error}</div>
-      ) : null}
-      {state.success ? (
-        <div className="notificacion success">{state.success}</div>
-      ) : null}
-      <h1>Estados de Cita</h1>
-      
-      <Form onSubmit={handleSubmit} className="py-5">
-       
-
-        <Form.Group className="mt-2">
-          <Form.Label>Estado</Form.Label>
-          <Form.Control
-            type="text"
-            name="estado"
-            value={formData.estado}
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-
-        <Button className="mt-5" variant="primary" type="submit">
-          Enviar Datos
-        </Button>
-      </Form>
-
-      <h1>Reporte</h1>
-
-      {!data === 0 && (
-            <div>
-              <span colSpan="4" style={{color: 'black'}}>No hay datos</span>
+      {/* Modal de Edición */}
+      <Modal isOpen={state.editOpen} onClose={handleCloseModal}>
+        <div className>
+          <h1>Editar Estado de Cita</h1>
+          <form>
+            <div className="form-group">
+              <label htmlFor="estado">Estado</label>
+              <select
+                id="estado"
+                name="editEstado"
+                className="form-control"
+                value={state.selectedEstadoCita.editEstado}
+                onChange={cambioDataEditar}
+              >
+                <option value="Confirmada">Confirmada</option>
+                <option value="Cancelada">Cancelada</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Pospuesta">Pospuesta</option>
+              </select>
             </div>
-          )
-          }
+            <div className="form-group">
+  <label htmlFor="activo">Activo</label>
+  <input
+    type="checkbox"
+    id="activo"
+    name="editActivo"
+    checked={state.selectedEstadoCita.editActivo} // Usar el estado seleccionado
+    onChange={cambioDataEditar}
+  />
+</div>
+            <div className="d-flex justify-content-end gap-3 mt-7">
+              <Button variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
+              <Button variant="primary" onClick={() => {
+                enviarDataPUT();
+                handleCloseModal();
+              }}>Guardar Cambios</Button>
+            </div>
+          </form>
+        </div>
+      </Modal>
 
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Estado</th>
-            <th>Activo</th>
-            <th>Fecha de Borrado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data?.map((item) => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>{item.estado}</td>
-              <td>{item.activo ? "Sí" : "No"}</td>
-              <td>{item.fecha_borrado ? new Date(item.fecha_borrado).toLocaleDateString('es-hn', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-              }) : null}</td>
-                  <td>
-                <Button onClick={() => {
-            
-              handleOpenModal();
-
-              changeSelectedEstado(item);
-
-                }}>Editar</Button></td>
-            </tr>
-          ))}
-       
-        </tbody>
-      </Table>
+      {/* Modal de Eliminar */}
+      <Modal showCloseButton={false} isOpen={state.deleteOpen} onClose={handleCloseModal}>
+        <div className="d-flex justify-content-center">
+          <h5>¿Estás seguro que deseas eliminar este estado de cita?</h5>
+          <div className="d-flex justify-content-end gap-3 mt-7">
+            <Button variant="danger" onClick={() => {
+              enviarDataDelete();
+              handleCloseModal();
+            }}>Eliminar</Button>
+            <Button variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };
 
 export default EstadosCita;
+
+
