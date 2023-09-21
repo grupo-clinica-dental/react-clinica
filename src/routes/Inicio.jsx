@@ -70,6 +70,7 @@ getCitas()
 
 
 
+
     return (
 
       <>
@@ -85,6 +86,7 @@ getCitas()
           return {
             title: `Cita con ${cita.paciente.nombre}`,
             date: cita.fecha_fin,
+            backgroundColor: cita.doctor.color,
           }
         })}
         plugins={[ dayGridPlugin ]}

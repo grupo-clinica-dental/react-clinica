@@ -3,6 +3,7 @@ import { Form, Button, Table } from "react-bootstrap";
 import Modal from '../components/modal';
 import { useAuthStore2 } from "../zustand-stores/auth-store";
 import { API_URL } from "../api/api.config";
+import e from "cors";
 
 
 const url = `${API_URL}/api/doctores`;
@@ -64,6 +65,7 @@ const Doctores = () => {
   };
 
   const cambiodata = (event) => {
+    console.log(event.target.value)
     const { name, value } = event.target;
     setFormData( previous => ({ ...previous, [name]: value }));
   };
@@ -404,7 +406,7 @@ const Doctores = () => {
         </thead>
         <tbody>
           {state.doctores.map((item) => (
-            <tr key={item.id}>
+            <tr key={item.doctor_id + item.doctor_name}>
               <td>{item.doctor_name}</td>
               <td>{item.doctor_email}</td>
               <td style={{ backgroundColor: `${item.doctor_color}` }}> </td>
