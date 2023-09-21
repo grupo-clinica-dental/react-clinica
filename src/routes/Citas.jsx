@@ -164,6 +164,7 @@ export const Citas = () => {
       console.error("Error al enviar datos", error);
     }
   };
+
   function actualizarForm(item) {
     setFormData({
       id: item.id,
@@ -178,10 +179,68 @@ export const Citas = () => {
     });
     setShowEditModal(true); // Esto abrirá el modal de edición
 }
+const [doctores, setDoctores] = useState([]);
+const [estadosCitas, setEstadosCitas] = useState([]);
+const [pacientes, setPacientes] = useState([]);
+
+const obtenerDoctores = async () => {
+  try {
+      const response = await fetch(`${API_URL}/api/doctores`, {
+          method: "GET",
+          headers: {
+              Authorization: `Bearer ${token}`
+          }
+      });
+      const data = await response.json();
+      if (response.ok) {
+          setDoctores(data);
+      } else {
+          console.error("Error al obtener doctores");
+      }
+  } catch (error) {
+      console.error("Error al hacer la solicitud de doctores:", error);
+  }
+};
+const obtenerEstadosCitas = async () => {
+  try {
+      const response = await fetch(`${API_URL}/api/estadoCita`, {
+          method: "GET",
+          headers: {
+              Authorization: `Bearer ${token}`
+          }
+      });
+      const data = await response.json();
+      if (response.ok) {
+          setEstadosCitas(data);
+      } else {
+          console.error("Error al obtener estados de citas");
+      }
+  } catch (error) {
+      console.error("Error al hacer la solicitud de estados de citas:", error);
+  }
+};
+const getPacientes = async () => {
+  const response = await fetch(`${API_URL}/api/pacientes`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (response.ok) {
+      const data = await response.json();
+      setPacientes(data.item_paciente);
+  } else {
+      console.error("Error al obtener pacientes", await response.text());
+  }
+};
 
 
   useEffect(() => {
     getDatos();
+      obtenerDoctores();
+      obtenerEstadosCitas();
+      getPacientes();
   }, []);
 
   return (
@@ -201,19 +260,34 @@ export const Citas = () => {
     </Form.Group>
 
     <Form.Group>
-        <Form.Label>Doctor ID</Form.Label>
-        <Form.Control type='text' name='doctor_id' value={formData.doctor_id} onChange={cambioData} />
-    </Form.Group>
+    <Form.Label>Doctor ID</Form.Label>
+    <Form.Control as="select" name='doctor_id'  value={formData.doctor_id} onChange={cambioData}>  <option value="">Selecciona El Doctor</option>
+        {doctores.map(doctor => <option key={doctor.id} value={doctor.id}>  {doctor.nombre}</option>)}
+    </Form.Control>
+</Form.Group>
 
-    <Form.Group>
-        <Form.Label>Paciente ID</Form.Label>
-        <Form.Control type='text' name='paciente_id' value={formData.paciente_id} onChange={cambioData} />
-    </Form.Group>
+<Form.Group>
+    <Form.Label>Paciente</Form.Label>
+    <Form.Control as="select" name='paciente_id' value={formData.paciente_id} onChange={cambioData}>
+        <option value="">Seleccione El Paciente</option>
+        {pacientes && pacientes.map(paciente => (
+            <option key={paciente.id} value={paciente.id}>
+                {paciente.nombre} {paciente.apellido}
+            </option>
+        ))}
+    </Form.Control>
+</Form.Group>
 
-    <Form.Group>
-        <Form.Label>Estado ID</Form.Label>
-        <Form.Control type='text' name='estado_id' value={formData.estado_id} onChange={cambioData} />
-    </Form.Group>
+
+<Form.Group>
+    <Form.Label>Estado Cita</Form.Label>
+    <Form.Control as="select" name='estado_id' value={formData.estado_id} onChange={cambioData}><option value="">Selecciona el Estado de la Cita</option>
+        {estadosCitas.map((estado) => (
+            <option value={estado.id}>{estado.estado}</option>
+        ))}
+    </Form.Control>
+</Form.Group>
+
 
     <Form.Group>
         <Form.Label>ID de Evento en Google Calendar</Form.Label>
@@ -302,7 +376,7 @@ export const Citas = () => {
         </div>
     </div>
 
-    {/* Modal de Edición */}
+   
     <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
         <Modal.Header closeButton>
             <Modal.Title>Editar Cita</Modal.Title>
@@ -320,33 +394,33 @@ export const Citas = () => {
                 </Form.Group>
                 <Form.Group>
     <Form.Label>Doctor ID</Form.Label>
-    <Form.Control
-        type='text'
-        name='doctor_id'
-        value={formData.doctor_id}
-        onChange={cambioData}
-    />
+    <Form.Control as="select" name='doctor_id'  value={formData.doctor_id} onChange={cambioData}>  <option value="">Selecciona El Doctor</option>
+        {doctores.map(doctor => <option key={doctor.id} value={doctor.id}>  {doctor.nombre}</option>)}
+    </Form.Control>
 </Form.Group>
 
 <Form.Group>
-    <Form.Label>Paciente ID</Form.Label>
-    <Form.Control
-        type='text'
-        name='paciente_id'
-        value={formData.paciente_id}
-        onChange={cambioData}
-    />
+    <Form.Label>Paciente</Form.Label>
+    <Form.Control as="select" name='paciente_id' value={formData.paciente_id} onChange={cambioData}>
+        <option value="">Seleccione El Paciente</option>
+        {pacientes && pacientes.map(paciente => (
+            <option key={paciente.id} value={paciente.id}>
+                {paciente.nombre} {paciente.apellido}
+            </option>
+        ))}
+    </Form.Control>
 </Form.Group>
 
+
 <Form.Group>
-    <Form.Label>Estado ID</Form.Label>
-    <Form.Control
-        type='text'
-        name='estado_id'
-        value={formData.estado_id}
-        onChange={cambioData}
-    />
+    <Form.Label>Estado Cita</Form.Label>
+    <Form.Control as="select" name='estado_id' value={formData.estado_id} onChange={cambioData}><option value="">Selecciona el Estado de la Cita</option>
+        {estadosCitas.map((estado) => (
+            <option value={estado.id}>{estado.estado}</option>
+        ))}
+    </Form.Control>
 </Form.Group>
+
 
 <Form.Group>
     <Form.Label>ID de Evento en Google Calendar</Form.Label>
