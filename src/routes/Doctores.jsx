@@ -3,7 +3,6 @@ import { Form, Button, Table } from "react-bootstrap";
 import Modal from '../components/modal';
 import { useAuthStore2 } from "../zustand-stores/auth-store";
 import { API_URL } from "../api/api.config";
-import e from "cors";
 
 
 const url = `${API_URL}/api/doctores`;
@@ -240,7 +239,7 @@ const Doctores = () => {
   }, []);
 
 
-
+console.log(state.doctores)
 
   return (
     <>
@@ -410,7 +409,7 @@ const Doctores = () => {
               <td>{item.doctor_name}</td>
               <td>{item.doctor_email}</td>
               <td style={{ backgroundColor: `${item.doctor_color}` }}> </td>
-              <td>{item.especialidad_name}</td>
+              <td>{item.especialidades.length > 0 ? item.especialidades[0].especialidad_name : 'No definido'}</td>
               
               <td>
                 <button type="button" className="btn btn-warning" onClick={() => {
