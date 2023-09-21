@@ -10,8 +10,9 @@ const url = `${API_URL}/api/doctores`;
 const Doctores = () => {
 
   const token = useAuthStore2((state) => state.token)
+
   
-  const [formData, useFormData] = useState({
+  const [formData, setFormData] = useState({
     nombre: "",
     correo_electronico: "",
     color: "#FFFFFF",
@@ -21,8 +22,10 @@ const Doctores = () => {
   const [state, setstate] = useState({
     error: null,
     success: null,
+    doctores: [],
+    especialidades: [],
     modalIsOpen: false,
-    selectedDoctores: {
+    selectedDoctor: {
       editnombre: "",
       editcorreoelectronico: "",
       editcolor: "",
@@ -32,22 +35,23 @@ const Doctores = () => {
   });
 
   const handleCloseModal = () => {
-    setstate(previous => ({...previous, modalIsOpen: false, delteOpen: false}))
+    setstate(previous => ({...previous, modalIsOpen: false, deleteOpen: false}))
   }
 
-  const changeSelectedDoctores = (item) => {
-    setstate(previous => ({...previous, selectedDoctores: {
+  const changeSelectedDoctor = (item) => {
+    setstate(previous => ({...previous, selectedDoctor: {
       editnombre: item.nombre,
       editcorreoelectronico: item.correo_electronico,
       editcolor: item.color,
       editespecialidasID: item.especialidadId,
       id: item.id
-
     }}))
   }
 
+  
+
   const resetFormData = () => {
-    useFormData({
+    setFormData({
       id: "",
       nombre: "",
       correo_electronico: "",
@@ -58,7 +62,7 @@ const Doctores = () => {
 
   const cambiodata = (event) => {
     const { name, value } = event.target;
-    useFormData({ ...formData, [name]: value });
+    setFormData( previous => ({ ...previous, [name]: value }));
   };
 
   const Enviardatos = async (event) => {
@@ -72,6 +76,18 @@ const Doctores = () => {
     }
   };
 
+  const resetSuccess = () => {
+    setTimeout(() => {
+      setstate(previous => ({...previous, success: ""}));
+    }, 2000);
+  }
+
+  const resetError = () => {
+    setTimeout(() => {
+      setstate(previous => ({...previous, error: ""}));
+    }, 2000);
+  }
+
   const enviarDataPost = async () => {
     try {
       const response = await fetch(url, {
@@ -83,45 +99,28 @@ const Doctores = () => {
         body: JSON.stringify(formData),
       });
       if (response.ok) {
+        resetFormData();
+        getDatos();
         setstate({
           ...state,
-          success: true,
+          success: 'Doctor creado con exito',
         });
-        setTimeout(() => {
-          setstate({
-            ...state,
-            success: "",
-          });
-        }, 2000);
-        getDatos();
-        resetFormData();
-        formData.nombre = "";
-        formData.correo_electronico = "";
-        formData.color = "#FFFFFF"
-        formData.especialidadId = "";
+
+        resetSuccess();
+
       } else {
         setstate({
           ...state,
-          error: "",
+          error: "Ha ocurrido un error",
         });
-        setTimeout(() => {
-          setstate({
-            ...state,
-            error: "",
-          });
-        }, 2000);
+        resetError();
       }
     } catch (error) {
       setstate({
         ...state,
         error: "Error en enviar los datos.",
       });
-      setTimeout(() => {
-        setstate({
-          ...state,
-          error: "",
-        });
-      }, 2000);
+      resetError( )
       console.error("Error en enviar los datos");
     }
   }
@@ -130,13 +129,12 @@ const Doctores = () => {
     e.preventDefault();
 
     const data = {
-      nombre: state.selectedDoctores.editnombre,
-      correo_electronico: state.selectedDoctores.editcorreoelectronico,
-      color: state.selectedDoctores.editcolor,
-      especialidadId: state.selectedDoctores.editespecialidasID,
-      id: state.selectedDoctores.id
+      nombre: state.selectedDoctor.editnombre,
+      correo_electronico: state.selectedDoctor.editcorreoelectronico,
+      color: state.selectedDoctor.editcolor,
+      especialidadId: state.selectedDoctor.editespecialidasID,
+      id: state.selectedDoctor.id
     }
-
 
 
     try {
@@ -149,33 +147,26 @@ const Doctores = () => {
         body: JSON.stringify(data),
       });
       if (response.ok) {
-        setstate(previous => ({...previous, modalIsOpen:false, success: 'Doctores actualizada con exito'}))
+        setstate(previous => ({...previous, success: 'Doctores actualizado con exito'}))
         getDatos();
-        setTimeout(() => {
-          setstate(previous => ({...previous, success: ''}))
-        }, 2000);
+     resetSuccess();
+     handleCloseModal();
       } else {
-        setstate(previous => ({...previous, modalIsOpen:false, error: 'Error al actualizar el doctor'}))
-          setTimeout(() => {
-            setstate(previous => ({...previous, error: ''}))
-          }, 2000);
+        setstate(previous => ({...previous, error: 'Error al actualizar el doctor'}))
+      resetError();
       }
     } catch (error) {
-      setstate(previous => ({...previous, modalIsOpen:false, error: 'Error al actualizar el doctor'}))
-        setTimeout(() => {
-          setstate(previous => ({...previous, error: ''}))
-        }, 2000);
+      setstate(previous => ({...previous, error: 'Error al actualizar el doctor'}))
+    resetError();
     }
 
   }
 
-  const enviarDataDelete = async (e) =>{
-    e.preventDefault();
-    const userId = state.selectedDoctores?.id;
+  const enviarDataDelete = async () =>{
+    const userId = state.selectedDoctor?.id;
     
-    const handleDeleteUser = async (userId) => {
       try {
-        const response = await fetch(url + '/' + item.id, {
+        const response = await fetch(url + '/' + userId, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -184,46 +175,22 @@ const Doctores = () => {
           
         });
         if (response.ok) {
-          const responsebody = await response.json();
-  
-          
           getDatos();
-          resetFormData();
-          formData.nombre = "";
-          formData.correo_electronico = "";
+          setstate(previous => ({...previous, success: 'Doctor eliminado con exito'}))
+          handleCloseModal();
+          resetSuccess();
           
         } else {
-          
-         
-          
-          
-  
-          
+          setstate(previous => ({...previous, error: 'Error al eliminar el doctor'}))
         }
       } catch (error) {
         
         console.error("Error en enviar los datos");
       }
-    }
-    
-      
-    
 
   }
 
-  /*function actualizarForm(item){
-    resetFormData();
-    let arreglo = {
-      id: item.id,
-      nombre: item.nombre,
-      correo_electronico: item.correo_electronico,
-      color: item.color,
-    }
-    useFormData(arreglo);
-  }*/
-
   
-  const [Data, useData] = useState([]);
 
   const getDatos = async () => {
     const response = await fetch(url, {
@@ -235,16 +202,35 @@ const Doctores = () => {
     const responseData = await response.json();
 
     if (response.ok) {
-      useData(responseData);
+      setstate(previous => ({...previous, doctores: responseData}));
       
     }else{
-      useData([]);
+      setstate(previous => ({...previous, doctores: []}));
       resetFormData();
     }
   };
 
+  const getEspecialidades = async () => {
+    const response = await fetch(`${API_URL}/api/especialidades`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    const responseData = await response.json();
+
+    if (response.ok) {
+      setstate(previous => ({...previous, especialidades: responseData}));
+      
+    }else{
+      setstate(previous => ({...previous, especialidades: []}));
+      resetFormData();
+    }
+  } ;
+
   useEffect(() => {
     getDatos();
+    getEspecialidades();
   }, []);
 
 
@@ -256,10 +242,10 @@ const Doctores = () => {
         <div className="notificacion error">{state.error}</div>
       ) : null}
       {state.success ? (
-        <div className="notificacion success">Doctor creado fue un exicto</div>
+        <div className="notificacion success">{state.success}</div>
       ) : null}
       <Modal isOpen={state.modalIsOpen} onClose={handleCloseModal}>
-        <h1>Editar Doctores</h1>
+        <h1>Editar Doctor</h1>
           <Form className="flex flex-col gap-y-8" onSubmit={enviarDataPUT}>
           <Form.Group>
             <Form.Label>Nombre</Form.Label>
@@ -267,9 +253,9 @@ const Doctores = () => {
               type="text"
               name="editnombre"
               onChange={(e) => {
-                setstate(previous => ({...previous, selectedDoctores: {...previous.selectedDoctores, editnombre: e.target.value}}))
+                setstate(previous => ({...previous, selectedDoctor: {...previous.selectedDoctor, editnombre: e.target.value}}))
               }}
-              value={state.selectedDoctores.editnombre}
+              value={state.selectedDoctor.editnombre}
             />
           </Form.Group>
           <Form.Group>
@@ -278,9 +264,9 @@ const Doctores = () => {
               type="text"
               name="editcorreoelectronico"
               onChange={(e) => {
-                setstate(previous => ({...previous, selectedDoctores: {...previous.selectedDoctores, editcorreoelectronico: e.target.value}}))
+                setstate(previous => ({...previous, selectedDoctor: {...previous.selectedDoctor, editcorreoelectronico: e.target.value}}))
               }}
-              value={state.selectedDoctores.editcorreoelectronico}
+              value={state.selectedDoctor.editcorreoelectronico}
             />
           </Form.Group>
           <Form.Group>
@@ -289,9 +275,9 @@ const Doctores = () => {
               type="Color"
               name="editcolor"
               onChange={(e) => {
-                setstate(previous => ({...previous, selectedDoctores: {...previous.selectedDoctores, editcolor: e.target.value}}))
+                setstate(previous => ({...previous, selectedDoctor: {...previous.selectedDoctor, editcolor: e.target.value}}))
               }}
-              value={state.selectedDoctores.editcolor}
+              value={state.selectedDoctor.editcolor}
             />
           </Form.Group>
           <Form.Group>
@@ -300,18 +286,18 @@ const Doctores = () => {
               type="text"
               name="editespecialidasID"
               onChange={(e) => {
-                setstate(previous => ({...previous, selectedDoctores: {...previous.selectedDoctores, editespecialidasID: e.target.value}}))
+                setstate(previous => ({...previous, selectedDoctor: {...previous.selectedDoctor, editespecialidasID: e.target.value}}))
               }}
-              value={state.selectedDoctores.editespecialidasID}
+              value={state.selectedDoctor.editespecialidasID}
             >
               <option value="0">Seleccione una especialidad</option>
-            <option value="1">Medicina General</option>
+              {state.especialidades.map((item) => ( <option value={item.id} key={`${item.nombre}${item.id}`}>{item.nombre}</option>))}
             </Form.Select>
             
           </Form.Group>
 
           <Button variant="primary" type="submit">
-              Actualizar Doctores
+              Actualizar Doctor
           </Button>
 
           </Form>
@@ -322,7 +308,7 @@ const Doctores = () => {
             <h1>Esta seguro que desea eliminar este doctor?</h1>
             <div className="flex w-[40%] grow">
               <Button className="w-full" variant="danger" onClick={() => {
-                handleDeleteUser(state.selectedDoctores.id);
+                enviarDataDelete();
               }}>Eliminar</Button>
             </div> 
             <div className="flex w-[40%] grow">
@@ -385,8 +371,8 @@ const Doctores = () => {
             onChange={cambiodata}
           >
             <option>Especialidades</option>
-            {Data.map((item) => (
-              <option>{item.especialidadId}</option>
+            {state.especialidades.map((item) => (
+              <option value={item.id} key={`${item.nombre}${item.id}`}>{item.nombre}</option>
             ))}
             
             
@@ -412,23 +398,23 @@ const Doctores = () => {
           </tr>
         </thead>
         <tbody>
-          {Data.map((item) => (
+          {state.doctores.map((item) => (
             <tr key={item.id}>
               <td>{item.nombre}</td>
               <td>{item.correo_electronico}</td>
               <td style={{ backgroundColor: `${item.color}` }}> </td>
               <td>{item.especialidadId}</td>
               <td>
-                <button type="button" class="btn btn-warning" onClick={() => {
-                  changeSelectedDoctores(item);
+                <button type="button" className="btn btn-warning" onClick={() => {
+                  changeSelectedDoctor(item);
                   setstate(previous => ({...previous, modalIsOpen:true}))
                 }}>
                   Actualizar
                 </button>
               </td>
               <td>
-                <button type="button" class="btn btn-danger" onClick={() => {
-                  changeSelectedUser(item)
+                <button type="button" className="btn btn-danger" onClick={() => {
+                  changeSelectedDoctor(item)
                   setstate(previous => ({...previous, deleteOpen: true}))
                   }}>
                   
