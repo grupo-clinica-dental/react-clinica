@@ -26,6 +26,7 @@ const Doctores = () => {
     especialidades: [],
     modalIsOpen: false,
     selectedDoctor: {
+      id: "",
       editnombre: "",
       editcorreoelectronico: "",
       editcolor: "",
@@ -39,12 +40,13 @@ const Doctores = () => {
   }
 
   const changeSelectedDoctor = (item) => {
+    console.log(item)
     setstate(previous => ({...previous, selectedDoctor: {
-      editnombre: item.nombre,
-      editcorreoelectronico: item.correo_electronico,
-      editcolor: item.color,
-      editespecialidasID: item.especialidadId,
-      id: item.id
+      editnombre: item.doctor_name,
+      editcorreoelectronico: item.doctor_email,
+      editcolor: item.doctor_color,
+      editespecialidasID: item.especialidad_id,
+      id: item.doctor_id
     }}))
   }
 
@@ -409,6 +411,7 @@ const Doctores = () => {
               <td>
                 <button type="button" className="btn btn-warning" onClick={() => {
                   changeSelectedDoctor(item);
+                  setstate(previous => ({...previous, modalIsOpen: true}))
                 }}>
                   Actualizar
                 </button>
