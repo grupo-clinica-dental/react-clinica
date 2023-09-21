@@ -401,15 +401,14 @@ const Doctores = () => {
         <tbody>
           {state.doctores.map((item) => (
             <tr key={item.id}>
-              <td>{item.nombre}</td>
-              <td>{item.correo_electronico}</td>
-              <td style={{ backgroundColor: `${item.color}` }}> </td>
-              <td>{item.especialidadId}</td>
+              <td>{item.doctor_name}</td>
+              <td>{item.doctor_email}</td>
+              <td style={{ backgroundColor: `${item.doctor_color}` }}> </td>
+              <td>{item.especialidad_name}</td>
               
               <td>
                 <button type="button" className="btn btn-warning" onClick={() => {
                   changeSelectedDoctor(item);
-                  setstate(previous => ({...previous, modalIsOpen:true}))
                 }}>
                   Actualizar
                 </button>
