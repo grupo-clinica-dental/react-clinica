@@ -18,10 +18,18 @@ export const Pacientes = () => {
 
   const [state, setstate] = useState({
     error: null,
+    pacientes: [],
     success: null,
     modalIsOpen: false,
     deleteOpen: false,
-    editOpen: false
+    editOpen: false,
+    selectedPaciente: {
+      editId: '',
+      editNombre: '',
+      editTelefono: '',
+      editEmail: '',
+      editFechaNacimiento: ''
+    }
   });
 
   const resetFormData = () => {
@@ -38,6 +46,27 @@ export const Pacientes = () => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };
+
+  const cambioDataEditar = (event) => {
+    const { name, value } = event.target;
+    setstate(previous => ({ ...previous, selectedPaciente: { ...previous.selectedPaciente, [name]: value } }));
+  }
+
+  const resetError = () => {
+    setTimeout(() => {
+      
+setstate(previous => ({ ...previous, error: '' }));
+
+    }, 2000);
+  }
+
+  const resetSuccess = () => {
+    setTimeout(() => {
+      setstate(previous => ({
+        ...previous, success: '' 
+      }));
+    }, 2000);
+  }
 
   const enviarDatos = async (event) => {
     event.preventDefault();
@@ -80,67 +109,66 @@ export const Pacientes = () => {
       });
 
       if (response.ok) {
-        const responseData = await response.json();
+  
         setstate({
-          ...state, success: true
+          ...state, success: 'Paciente creado con éxito'
         });
-        setTimeout(() => {
-          setstate({
-            ...state, success: '' 
-          });
-        }, 2000);
+   
         getDatos();
         resetFormData();
+        resetSuccess();
       } else {
-        const responseBody = await response.json();
         setstate({
-          ...state, success: true
+          ...state, error: 'Error al enviar datos'
         });
-        setTimeout(() => {
-          setstate({
-            ...state, success: '' 
-          });
-        }, 2000);
+      resetError()
       }
     } catch (error) {
-      console.error("Error al enviar datos", error);
       setstate({
         ...state, error:"Error al enviar datos"
       });
-      setTimeout(() => {
-        setstate({
-          ...state, error: '' 
-        });
-      }, 2000);
+      resetError()
     }
   };
 
   const enviarDataPUT = async () => {
+
+    const data = {
+      id: state.selectedPaciente.editId,
+      nombre: state.selectedPaciente.editNombre,
+      telefono: state.selectedPaciente.editTelefono,
+      email: state.selectedPaciente.editEmail,
+      fecha_nacimiento: state.selectedPaciente.editFechaNacimiento
+    };
+  
     try {
-      const response = await fetch(url + '/' + formData.id, {
+      const response = await fetch(url + '/' + data.id, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(data)
       });
 
       if (response.ok) {
-        const responseData = await response.json();
+        setstate(previous => ({ ...previous, success: 'Paciente actualizado con éxito' }));
         getDatos();
-        resetFormData();
+        resetSuccess();
       } else {
-        const responseBody = await response.json();
+        setstate(previous => ({ ...previous, error: 'Error al enviar datos' }));
+        resetError();
       }
     } catch (error) {
       console.error("Error al enviar datos", error);
+      resetError();
+
     }
   };
 
-  async function enviarDataDelete(item) {
+  async function enviarDataDelete() {
     try {
-      const response = await fetch(url + '/' + item.id, {
+      const response = await fetch(url + '/' + state.selectedPaciente.editId, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -149,28 +177,20 @@ export const Pacientes = () => {
       });
 
       if (response.ok) {
-        const responseData = await response.json();
+        setstate(previous => ({ ...previous, success: 'Paciente eliminado con éxito' }));
         getDatos();
         resetFormData();
       } else {
-        const responseBody = await response.json();
+        setstate(previous => ({ ...previous, error: 'Error al enviar datos' }));
+        resetError();
       }
     } catch (error) {
-      console.error("Error al enviar datos", error);
+      setstate(previous => ({ ...previous, error: 'Error al enviar datos' }));
+      resetError();
     }
   }
 
-  function actualizarForm(item) {
-    resetFormData(); 
-    let arreglo = {
-      id: item.id,
-      nombre: item.nombre,
-      telefono: item.telefono,
-      email: item.email,
-      fecha_nacimiento: item.fecha_nacimiento
-    };
-    setFormData(arreglo);
-  }
+
 
   const handleOpenModal = (modalName) => {
     setstate((previous) => ({...previous, [modalName]: true}));
@@ -196,7 +216,7 @@ export const Pacientes = () => {
         <div className="card-body">
           <Form onSubmit={enviarDatos}>
             {state.error ? <div className="notificacion error">{state.error}</div> : null }
-            {state.success ? <div className="notificacion success">Usuario creado con éxito</div> : null }
+            {state.success ? <div className="notificacion success">{state.success}</div> : null }
             <Form.Group>
               <Form.Label>Nombre</Form.Label>
               <Form.Control
@@ -255,7 +275,7 @@ export const Pacientes = () => {
                 </tr>
               </thead>
               <tbody>
-                {datos.map((item, index) => (
+                {datos.map((item) => (
                   <tr key={item.id}>
                     <td>{item.id}</td>
                     <td>{item.nombre}</td>
@@ -263,10 +283,14 @@ export const Pacientes = () => {
                     <td>{item.email}</td>
                     <td>{item.fecha_nacimiento}</td>
                     <td>
-                      <button onClick={() => { actualizarForm(item); handleOpenModal("editOpen"); }}>Editar</button>
+                      <button onClick={() => {   
+                          setstate(previous => ({ ...previous, selectedPaciente: { ...previous.selectedPaciente, editId: item.id, editNombre: item.nombre, editTelefono: item.telefono, editEmail: item.email, editFechaNacimiento: item.fecha_nacimiento } }))
+                        handleOpenModal("editOpen"); }}>Editar</button>
                       </td>
                       <td>
-                      <button onClick={() => { actualizarForm(item); handleOpenModal("deleteOpen"); }}>Eliminar</button>
+                      <button onClick={() => { 
+                        setstate(previous => ({ ...previous, selectedPaciente: { ...previous.selectedPaciente, editId: item.id } }))
+                        handleOpenModal("deleteOpen"); }}>Eliminar</button>
                     </td>
                   </tr>
                 ))}
@@ -279,17 +303,17 @@ export const Pacientes = () => {
       {/* Modal de Editar */}
       <Modal isOpen={state.editOpen} onClose={handleCloseModal}>
         <div className>
-          <h1>Editar Usuario</h1>
+          <h1>Editar Paciente</h1>
           <form>
             <div className="form-group">
               <label htmlFor="nombre">Nombre</label>
               <input
                 type="text"
                 id="nombre"
-                name="nombre"
+                name="editNombre"
                 className="form-control"
-                value={formData.nombre}
-                onChange={cambioData}
+                value={state.selectedPaciente.editNombre}
+                onChange={cambioDataEditar}
               />
             </div>
             <div className="form-group">
@@ -297,10 +321,10 @@ export const Pacientes = () => {
               <input
                 type="tel"
                 id="telefono"
-                name="telefono"
+                name="editTelefono"
                 className="form-control"
-                value={formData.telefono}
-                onChange={cambioData}
+                value={state.selectedPaciente.editTelefono}
+                onChange={cambioDataEditar}
               />
             </div>
             <div className="form-group">
@@ -308,10 +332,10 @@ export const Pacientes = () => {
               <input
                 type="email"
                 id="email"
-                name="email"
+                name="editEmail"
                 className="form-control"
-                value={formData.email}
-                onChange={cambioData}
+                value={state.selectedPaciente.editEmail}
+                onChange={cambioDataEditar}
               />
             </div>
             <div className="form-group">
@@ -319,10 +343,10 @@ export const Pacientes = () => {
               <input
                 type="date"
                 id="fecha_nacimiento"
-                name="fecha_nacimiento"
+                name="editFechaNacimiento"
                 className="form-control"
-                value={formData.fecha_nacimiento}
-                onChange={cambioData}
+                value={state.selectedPaciente.editFechaNacimiento}
+                onChange={cambioDataEditar}
               />
             </div>
             <div className="d-flex justify-content-end gap-3 mt-7">
