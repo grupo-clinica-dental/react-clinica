@@ -102,7 +102,7 @@ const Doctores = () => {
       });
       if (response.ok) {
         resetFormData();
-        getDatos();
+        await getDatos();
         setstate({
           ...state,
           success: 'Doctor creado con exito',
@@ -150,7 +150,7 @@ const Doctores = () => {
       });
       if (response.ok) {
         setstate(previous => ({...previous, success: 'Doctores actualizado con exito'}))
-        getDatos();
+      await  getDatos();
      resetSuccess();
      handleCloseModal();
       } else {
@@ -177,8 +177,8 @@ const Doctores = () => {
           
         });
         if (response.ok) {
-          getDatos();
           setstate(previous => ({...previous, success: 'Doctor eliminado con exito'}))
+          await getDatos();
           handleCloseModal();
           resetSuccess();
           
