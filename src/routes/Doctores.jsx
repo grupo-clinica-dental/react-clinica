@@ -26,25 +26,28 @@ const Doctores = () => {
     especialidades: [],
     modalIsOpen: false,
     selectedDoctor: {
+      id: "",
       editnombre: "",
       editcorreoelectronico: "",
       editcolor: "",
-      editespecialidasID:""
+      especialidadVieja: '',
+      nuevaEspecialidad: '',
     },
     deleteOpen: false,
   });
-
+  
   const handleCloseModal = () => {
     setstate(previous => ({...previous, modalIsOpen: false, deleteOpen: false}))
   }
 
   const changeSelectedDoctor = (item) => {
     setstate(previous => ({...previous, selectedDoctor: {
-      editnombre: item.nombre,
-      editcorreoelectronico: item.correo_electronico,
-      editcolor: item.color,
-      editespecialidasID: item.especialidadId,
-      id: item.id
+      editnombre: item.doctor_name,
+      editcorreoelectronico: item.doctor_email,
+      editcolor: item.doctor_color,
+      especialidadVieja: item.especialidad_id,
+      id: item.doctor_id,
+      nuevaEspecialidad: ''
     }}))
   }
 
@@ -100,7 +103,7 @@ const Doctores = () => {
       });
       if (response.ok) {
         resetFormData();
-        getDatos();
+        await getDatos();
         setstate({
           ...state,
           success: 'Doctor creado con exito',
@@ -132,7 +135,8 @@ const Doctores = () => {
       nombre: state.selectedDoctor.editnombre,
       correo_electronico: state.selectedDoctor.editcorreoelectronico,
       color: state.selectedDoctor.editcolor,
-      especialidadId: state.selectedDoctor.editespecialidasID,
+      especialidadVieja: state.selectedDoctor.especialidadVieja,
+      nuevaEspecialidad: state.selectedDoctor.nuevaEspecialidad,
       id: state.selectedDoctor.id
     }
 
@@ -148,7 +152,7 @@ const Doctores = () => {
       });
       if (response.ok) {
         setstate(previous => ({...previous, success: 'Doctores actualizado con exito'}))
-        getDatos();
+      await  getDatos();
      resetSuccess();
      handleCloseModal();
       } else {
@@ -175,8 +179,8 @@ const Doctores = () => {
           
         });
         if (response.ok) {
-          getDatos();
           setstate(previous => ({...previous, success: 'Doctor eliminado con exito'}))
+          await getDatos();
           handleCloseModal();
           resetSuccess();
           
@@ -284,11 +288,11 @@ const Doctores = () => {
             <Form.Label>Especialidad</Form.Label>
             <Form.Select
               type="text"
-              name="editespecialidasID"
+              name="nuevaEspecialidad"
               onChange={(e) => {
-                setstate(previous => ({...previous, selectedDoctor: {...previous.selectedDoctor, editespecialidasID: e.target.value}}))
+                setstate(previous => ({...previous, selectedDoctor: {...previous.selectedDoctor, nuevaEspecialidad: e.target.value}}))
               }}
-              value={state.selectedDoctor.editespecialidasID}
+              value={state.selectedDoctor.nuevaEspecialidad !== '' ? state.selectedDoctor.nuevaEspecialidad : state.selectedDoctor.especialidadVieja}
             >
               <option value="0">Seleccione una especialidad</option>
               {state.especialidades.map((item) => ( <option value={item.id} key={`${item.nombre}${item.id}`}>{item.nombre}</option>))}
@@ -396,18 +400,20 @@ const Doctores = () => {
             <th></th>
             <th></th>
           </tr>
+          
         </thead>
         <tbody>
           {state.doctores.map((item) => (
             <tr key={item.id}>
-              <td>{item.nombre}</td>
-              <td>{item.correo_electronico}</td>
-              <td style={{ backgroundColor: `${item.color}` }}> </td>
-              <td>{item.especialidadId}</td>
+              <td>{item.doctor_name}</td>
+              <td>{item.doctor_email}</td>
+              <td style={{ backgroundColor: `${item.doctor_color}` }}> </td>
+              <td>{item.especialidad_name}</td>
+              
               <td>
                 <button type="button" className="btn btn-warning" onClick={() => {
                   changeSelectedDoctor(item);
-                  setstate(previous => ({...previous, modalIsOpen:true}))
+                  setstate(previous => ({...previous, modalIsOpen: true}))
                 }}>
                   Actualizar
                 </button>

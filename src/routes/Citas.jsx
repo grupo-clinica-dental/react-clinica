@@ -21,11 +21,23 @@ export const Citas = () => {
   });
   const [state, setState] = useState({
     error: null,
-    success: null
+    success: null,
+    citas: [],
+    doctores: [],
+    pacientes: [],
+    estadosCitas: [],
+    selectedCita: {
+      editid: '',
+      editfecha_hora: '',
+      editdoctor_id: '',
+      editpaciente_id: '',
+      editestado_id: '',
+      editnotas: ''
+    },
+    showEditModal: false,
+    showDeleteModal: false
   });
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedCita, setSelectedCita] = useState(null);
+
 
   const resetFormData = () => {
     setFormData({
@@ -46,6 +58,40 @@ export const Citas = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const cambioEditData = (event) => {
+    const { name, value } = event.target;
+    setState({
+      ...state,
+      selectedCita: {
+        ...state.selectedCita,
+        [name]: value
+      }
+    });
+  }
+
+  const handleCloseModal = () => {
+    setState(previous => ({
+      ...previous,
+      showEditModal: false,
+      showDeleteModal: false
+    })); // Esto limpia el state
+  }
+
+  const changeSelectedCita = (item) => {
+    setState({
+      ...state,
+      selectedCita: {
+        editid: item.id,
+        editfecha_hora: item.fecha_hora,
+        editdoctor_id: item.doctor_id,
+        editpaciente_id: item.paciente_id,
+        editestado_id: item.estado_id,
+        editnotas: item.notas
+      },
+      showEditModal: true
+    });
+  }
+
   const enviarDatos = async (event) => {
     event.preventDefault();
 
@@ -56,7 +102,12 @@ export const Citas = () => {
     }
   };
 
-  const [datos, setDatos] = useState([]);
+  const resetError = () => {
+setTimeout(() => {
+    setState(previous => ({ ...previous, error: null }) );
+}, 2000);
+  }
+
 
   const getDatos = async () => {
     const response = await fetch(url, {
@@ -68,10 +119,18 @@ export const Citas = () => {
     const responseData = await response.json();
 
     if (response.ok) {
-      setDatos(responseData.item_cita);
+      console.log({citas: responseData.item_cita});  
+      setState(previous => ({
+        ...previous,
+        citas: responseData.item_cita
+      }));
     } else {
-      setDatos([]);
+      setState(previous => ({
+        ...previous,
+        error: 'Algo salio mal'
+      }));
       resetFormData();
+      resetError();
     }
   };
 
@@ -101,22 +160,14 @@ export const Citas = () => {
         setState({
           ...state, error: "Error al enviar datos"
         });
-        setTimeout(() => {
-          setState({
-            ...state, error: ''
-          });
-        }, 2000);
+        resetError( )
       }
     } catch (error) {
       console.error("Error al enviar datos", error);
       setState({
         ...state, error: "Error al enviar datos"
       });
-      setTimeout(() => {
-        setState({
-          ...state, error: ''
-        });
-      }, 2000);
+      resetError()
     }
   };
 
@@ -134,7 +185,6 @@ export const Citas = () => {
       if (response.ok) {
         getDatos();
         resetFormData();
-        setShowEditModal(false); 
       } else {
         console.error("Error al actualizar datos", await response.json());
       }
@@ -156,7 +206,6 @@ export const Citas = () => {
       if (response.ok) {
         getDatos();
         resetFormData();
-        setShowDeleteModal(false); 
       } else {
         console.error("Error al eliminar datos", await response.json());
       }
@@ -165,23 +214,21 @@ export const Citas = () => {
     }
   };
 
-  function actualizarForm(item) {
-    setFormData({
-      id: item.id,
-      fecha_hora: item.fecha_hora,
-      doctor_id: item.doctor_id,
-      paciente_id: item.paciente_id,
-      estado_id: item.estado_id,
-      google_calendar_event_id: item.google_calendar_event_id,
-      ubicacion: item.ubicacion,
-      descripcion: item.descripcion,
-      notas: item.notas
-    });
-    setShowEditModal(true); // Esto abrirá el modal de edición
-}
-const [doctores, setDoctores] = useState([]);
-const [estadosCitas, setEstadosCitas] = useState([]);
-const [pacientes, setPacientes] = useState([]);
+//   function actualizarForm(item) {
+//     setFormData({
+//       id: item.id,
+//       fecha_hora: item.fecha_hora,
+//       doctor_id: item.doctor_id,
+//       paciente_id: item.paciente_id,
+//       estado_id: item.estado_id,
+//       google_calendar_event_id: item.google_calendar_event_id,
+//       ubicacion: item.ubicacion,
+//       descripcion: item.descripcion,
+//       notas: item.notas
+//     });
+//     setShowEditModal(true); // Esto abrirá el modal de edición
+// }
+
 
 const obtenerDoctores = async () => {
   try {
@@ -193,9 +240,11 @@ const obtenerDoctores = async () => {
       });
       const data = await response.json();
       if (response.ok) {
-          setDoctores(data);
+        console.log({doctores: data})
+        setState(previous => ({ ...previous, doctores: data }));
       } else {
-          console.error("Error al obtener doctores");
+        setState(previous => ({ ...previous, error: 'Algo salio mal' }));
+
       }
   } catch (error) {
       console.error("Error al hacer la solicitud de doctores:", error);
@@ -211,7 +260,8 @@ const obtenerEstadosCitas = async () => {
       });
       const data = await response.json();
       if (response.ok) {
-          setEstadosCitas(data);
+        console.log({estadosCita: data})
+      setState(previous => ({ ...previous, estadosCitas: data }));
       } else {
           console.error("Error al obtener estados de citas");
       }
@@ -229,7 +279,7 @@ const getPacientes = async () => {
 
   if (response.ok) {
       const data = await response.json();
-      setPacientes(data.item_paciente);
+   setState(previous => ({ ...previous, pacientes: data.item_paciente }));
   } else {
       console.error("Error al obtener pacientes", await response.text());
   }
@@ -262,7 +312,7 @@ const getPacientes = async () => {
     <Form.Group>
     <Form.Label>Doctor ID</Form.Label>
     <Form.Control as="select" name='doctor_id'  value={formData.doctor_id} onChange={cambioData}>  <option value="">Selecciona El Doctor</option>
-        {doctores.map(doctor => <option key={doctor.id} value={doctor.id}>  {doctor.nombre}</option>)}
+        {state.doctores.map(doctor => <option key={doctor.id} value={doctor.id}>  {doctor.nombre}</option>)}
     </Form.Control>
 </Form.Group>
 
@@ -270,7 +320,7 @@ const getPacientes = async () => {
     <Form.Label>Paciente</Form.Label>
     <Form.Control as="select" name='paciente_id' value={formData.paciente_id} onChange={cambioData}>
         <option value="">Seleccione El Paciente</option>
-        {pacientes && pacientes.map(paciente => (
+        {state.pacientes && state.pacientes.map(paciente => (
             <option key={paciente.id} value={paciente.id}>
                 {paciente.nombre} {paciente.apellido}
             </option>
@@ -282,8 +332,8 @@ const getPacientes = async () => {
 <Form.Group>
     <Form.Label>Estado Cita</Form.Label>
     <Form.Control as="select" name='estado_id' value={formData.estado_id} onChange={cambioData}><option value="">Selecciona el Estado de la Cita</option>
-        {estadosCitas.map((estado) => (
-            <option value={estado.id}>{estado.estado}</option>
+        {state.estadosCitas.map((estado) => (
+            <option key={`${estado.id}${estado.estado}`} value={estado.id}>{estado.estado}</option>
         ))}
     </Form.Control>
 </Form.Group>
@@ -323,36 +373,28 @@ const getPacientes = async () => {
     <thead>
         <tr>
             <th>ID</th>
-            <th>Fecha y Hora</th>
-            <th>Doctor ID</th>
-            <th>Paciente ID</th>
-            <th>Estado ID</th>
-            <th>ID de Evento en Google Calendar</th>
-            <th>Ubicación</th>
-            <th>Descripción</th>
-            <th>Notas</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Final</th>
+            <th>Doctor</th>
+            <th>Paciente</th>
+            <th>Estado</th>
             <th>Editar</th>
             <th>Eliminar</th>
         </tr>
     </thead>
     <tbody>
-        {datos.map((item, i) => (
+        {state.citas.map((item, i) => (
             <tr key={i}>
                 <td>{item.id}</td>
-                <td>{item.fecha_hora}</td>
-                <td>{item.doctor_id}</td>
-                <td>{item.paciente_id}</td>
-                <td>{item.estado_id}</td>
-                <td>{item.google_calendar_event_id}</td>
-                <td>{item.ubicacion}</td>
-                <td>{item.descripcion}</td>
-                <td>{item.notas}</td>
+                <td>{item.fecha_inicio}</td>
+                <td>{item.fecha_fin}</td>
+                <td>{item.doctor.nombre}</td>
+                <td>{item.paciente.nombre}</td>
                 <td>
                     <Button
                         variant='info'
                         onClick={() => {
-                           
-                            actualizarForm(item);
+                           changeSelectedCita(item);
                         }}
                     >
                         Editar
@@ -362,8 +404,12 @@ const getPacientes = async () => {
                     <Button
                         variant='danger'
                         onClick={() => {
-                            setSelectedCita(item); 
-                            setShowDeleteModal(true); 
+                          changeSelectedCita(item); 
+                          setState(previous => ({
+                            ...previous,
+                            selectedCita: {...previous.selectedCita, editid: item.id},
+                            showDeleteModal: true
+                          }))
                         }}
                     >
                         Eliminar
@@ -377,7 +423,7 @@ const getPacientes = async () => {
     </div>
 
    
-    <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+    {/* <Modal show={state.showEditModal} onHide={() => handleCloseModal}>
         <Modal.Header closeButton>
             <Modal.Title>Editar Cita</Modal.Title>
         </Modal.Header>
@@ -395,7 +441,7 @@ const getPacientes = async () => {
                 <Form.Group>
     <Form.Label>Doctor ID</Form.Label>
     <Form.Control as="select" name='doctor_id'  value={formData.doctor_id} onChange={cambioData}>  <option value="">Selecciona El Doctor</option>
-        {doctores.map(doctor => <option key={doctor.id} value={doctor.id}>  {doctor.nombre}</option>)}
+        {state.doctores.map(doctor => <option key={doctor.id} value={doctor.id}>  {doctor.nombre}</option>)}
     </Form.Control>
 </Form.Group>
 
@@ -403,7 +449,7 @@ const getPacientes = async () => {
     <Form.Label>Paciente</Form.Label>
     <Form.Control as="select" name='paciente_id' value={formData.paciente_id} onChange={cambioData}>
         <option value="">Seleccione El Paciente</option>
-        {pacientes && pacientes.map(paciente => (
+        {state.pacientes && state.pacientes.map(paciente => (
             <option key={paciente.id} value={paciente.id}>
                 {paciente.nombre} {paciente.apellido}
             </option>
@@ -415,8 +461,8 @@ const getPacientes = async () => {
 <Form.Group>
     <Form.Label>Estado Cita</Form.Label>
     <Form.Control as="select" name='estado_id' value={formData.estado_id} onChange={cambioData}><option value="">Selecciona el Estado de la Cita</option>
-        {estadosCitas.map((estado) => (
-            <option value={estado.id}>{estado.estado}</option>
+        {state.estadosCitas.map((estado) => (
+            <option key={`${estado.id}${estado.estado}`} value={estado.id}>{estado.estado}</option>
         ))}
     </Form.Control>
 </Form.Group>
@@ -469,10 +515,10 @@ const getPacientes = async () => {
                 </div>
             </Form>
         </Modal.Body>
-    </Modal>
+    </Modal> */}
 
   
-    <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+    {/* <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
             <Modal.Title>Eliminar Cita</Modal.Title>
         </Modal.Header>
@@ -487,7 +533,7 @@ const getPacientes = async () => {
                 Sí, Eliminar
             </Button>
         </Modal.Body>
-    </Modal>
+    </Modal> */}
 </>
 
   );
