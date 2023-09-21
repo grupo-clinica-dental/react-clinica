@@ -10,14 +10,11 @@ export const Citas = () => {
   const token = useAuthStore2((state) => state.token);
   const [formData, setFormData] = useState({
     id: '',
-    fecha_hora: '',
+    fecha_inicio: '',
+    fecha_fin: '',
     doctor_id: '',
     paciente_id: '',
     estado_id: '',
-    google_calendar_event_id: '',
-    ubicacion: '',
-    descripcion: '',
-    notas: ''
   });
   const [state, setState] = useState({
     error: null,
@@ -42,20 +39,22 @@ export const Citas = () => {
   const resetFormData = () => {
     setFormData({
       id: '',
-      fecha_hora: '',
+      fecha_inicio: '',
+      fecha_fin: '',
       doctor_id: '',
       paciente_id: '',
       estado_id: '',
-      google_calendar_event_id: '',
-      ubicacion: '',
-      descripcion: '',
-      notas: ''
     });
   };
 
+  const resetSuccess = () => {
+  setTimeout(() => {
+      setState(previous => ({ ...previous, success: null }) );
+  }, 2000);
+  }
   const cambioData = (event) => {
     const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(previous => ( {...previous, [name]: value} )  );
   };
 
   const cambioEditData = (event) => {
@@ -119,7 +118,6 @@ setTimeout(() => {
     const responseData = await response.json();
 
     if (response.ok) {
-      console.log({citas: responseData.item_cita});  
       setState(previous => ({
         ...previous,
         citas: responseData.item_cita
@@ -134,7 +132,8 @@ setTimeout(() => {
     }
   };
 
-  const enviarDataPost = async () => {
+  const enviarDataPost = async (e) => {
+    e.preventDefault();
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -146,16 +145,11 @@ setTimeout(() => {
       });
 
       if (response.ok) {
-        setState({
-          ...state, success: true
-        });
-        setTimeout(() => {
-          setState({
-            ...state, success: ''
-          });
-        }, 2000);
-        getDatos();
+        setState(previous => ( { ...previous, success: 'Datos enviados correctamente' } ));
+
+       await getDatos();
         resetFormData();
+        resetSuccess();
       } else {
         setState({
           ...state, error: "Error al enviar datos"
@@ -183,7 +177,7 @@ setTimeout(() => {
       });
 
       if (response.ok) {
-        getDatos();
+      await  getDatos();
         resetFormData();
       } else {
         console.error("Error al actualizar datos", await response.json());
@@ -204,7 +198,7 @@ setTimeout(() => {
       });
 
       if (response.ok) {
-        getDatos();
+     await  getDatos();
         resetFormData();
       } else {
         console.error("Error al eliminar datos", await response.json());
@@ -240,11 +234,10 @@ const obtenerDoctores = async () => {
       });
       const data = await response.json();
       if (response.ok) {
-        console.log({doctores: data})
         setState(previous => ({ ...previous, doctores: data }));
       } else {
         setState(previous => ({ ...previous, error: 'Algo salio mal' }));
-
+        resetError();
       }
   } catch (error) {
       console.error("Error al hacer la solicitud de doctores:", error);
@@ -260,7 +253,6 @@ const obtenerEstadosCitas = async () => {
       });
       const data = await response.json();
       if (response.ok) {
-        console.log({estadosCita: data})
       setState(previous => ({ ...previous, estadosCitas: data }));
       } else {
           console.error("Error al obtener estados de citas");
@@ -295,24 +287,35 @@ const getPacientes = async () => {
 
   return (
     <>
+          {state.error ? (
+        <div className="notificacion error">{state.error}</div>
+      ) : null}
+      {state.success ? (
+        <div className="notificacion success">{state.success}</div>
+      ) : null}
     <h2> Registro de Citas</h2>
     <div className="container mt-2">
         <div className="card-body">
-        <Form onSubmit={enviarDatos}>
+        <Form onSubmit={enviarDataPost}>
   
     <Form.Group>
         <Form.Control type='hidden' name='id' value={formData.id} onChange={cambioData} />
     </Form.Group>
 
             <Form.Group>
-        <Form.Label>Fecha y Hora</Form.Label>
-        <Form.Control type='datetime-local' name='fecha_hora' value={formData.fecha_hora} onChange={cambioData} />
+        <Form.Label>Fecha Inicio</Form.Label>
+        <Form.Control type='date' name='fecha_inicio' value={formData.fecha_inicio} onInput={cambioData} />
+    </Form.Group>
+
+    <Form.Group>
+        <Form.Label>Fecha Final</Form.Label>
+        <Form.Control type='date' name='fecha_fin' value={formData.fecha_fin} onInput={cambioData} />
     </Form.Group>
 
     <Form.Group>
     <Form.Label>Doctor ID</Form.Label>
     <Form.Control as="select" name='doctor_id'  value={formData.doctor_id} onChange={cambioData}>  <option value="">Selecciona El Doctor</option>
-        {state.doctores.map(doctor => <option key={doctor.id} value={doctor.id}>  {doctor.nombre}</option>)}
+        {state.doctores.map(doctor => <option key={doctor.doctor_id} value={doctor.doctor_id}>  {doctor.doctor_name}</option>)}
     </Form.Control>
 </Form.Group>
 
@@ -339,25 +342,6 @@ const getPacientes = async () => {
 </Form.Group>
 
 
-    <Form.Group>
-        <Form.Label>ID de Evento en Google Calendar</Form.Label>
-        <Form.Control type='text' name='google_calendar_event_id' value={formData.google_calendar_event_id} onChange={cambioData} />
-    </Form.Group>
-
-    <Form.Group>
-        <Form.Label>Ubicación</Form.Label>
-        <Form.Control type='text' name='ubicacion' value={formData.ubicacion} onChange={cambioData} />
-    </Form.Group>
-
-    <Form.Group>
-        <Form.Label>Descripción</Form.Label>
-        <Form.Control type='text' name='descripcion' value={formData.descripcion} onChange={cambioData} />
-    </Form.Group>
-
-    <Form.Group>
-        <Form.Label>Notas</Form.Label>
-        <Form.Control type='text' name='notas' value={formData.notas} onChange={cambioData} />
-    </Form.Group>
 
     <div className="d-flex justify-content-end mt-3">
         <Button variant='primary' type='submit'>Enviar Datos</Button>
@@ -386,10 +370,12 @@ const getPacientes = async () => {
         {state.citas.map((item, i) => (
             <tr key={i}>
                 <td>{item.id}</td>
-                <td>{item.fecha_inicio}</td>
-                <td>{item.fecha_fin}</td>
+                <td>{new Date(item.fecha_inicio).toLocaleString('es', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+<td>{new Date(item.fecha_fin).toLocaleString('es', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+
                 <td>{item.doctor.nombre}</td>
                 <td>{item.paciente.nombre}</td>
+                <td>{item.estado_cita.nombre}</td>
                 <td>
                     <Button
                         variant='info'

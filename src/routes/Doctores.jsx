@@ -64,6 +64,7 @@ const Doctores = () => {
   };
 
   const cambiodata = (event) => {
+    console.log(event.target.value)
     const { name, value } = event.target;
     setFormData( previous => ({ ...previous, [name]: value }));
   };
@@ -238,7 +239,7 @@ const Doctores = () => {
   }, []);
 
 
-
+console.log(state.doctores)
 
   return (
     <>
@@ -404,11 +405,11 @@ const Doctores = () => {
         </thead>
         <tbody>
           {state.doctores.map((item) => (
-            <tr key={item.id}>
+            <tr key={item.doctor_id + item.doctor_name}>
               <td>{item.doctor_name}</td>
               <td>{item.doctor_email}</td>
               <td style={{ backgroundColor: `${item.doctor_color}` }}> </td>
-              <td>{item.especialidad_name}</td>
+              <td>{item.especialidades.length > 0 ? item.especialidades[0].especialidad_name : 'No definido'}</td>
               
               <td>
                 <button type="button" className="btn btn-warning" onClick={() => {
