@@ -30,7 +30,8 @@ const Doctores = () => {
       editnombre: "",
       editcorreoelectronico: "",
       editcolor: "",
-      editespecialidasID:""
+      especialidadVieja: '',
+      nuevaEspecialidad: '',
     },
     deleteOpen: false,
   });
@@ -40,13 +41,13 @@ const Doctores = () => {
   }
 
   const changeSelectedDoctor = (item) => {
-    console.log(item)
     setstate(previous => ({...previous, selectedDoctor: {
       editnombre: item.doctor_name,
       editcorreoelectronico: item.doctor_email,
       editcolor: item.doctor_color,
-      editespecialidasID: item.especialidad_id,
-      id: item.doctor_id
+      especialidadVieja: item.especialidad_id,
+      id: item.doctor_id,
+      nuevaEspecialidad: ''
     }}))
   }
 
@@ -134,7 +135,8 @@ const Doctores = () => {
       nombre: state.selectedDoctor.editnombre,
       correo_electronico: state.selectedDoctor.editcorreoelectronico,
       color: state.selectedDoctor.editcolor,
-      especialidadId: state.selectedDoctor.editespecialidasID,
+      especialidadVieja: state.selectedDoctor.especialidadVieja,
+      nuevaEspecialidad: state.selectedDoctor.nuevaEspecialidad,
       id: state.selectedDoctor.id
     }
 
@@ -286,11 +288,11 @@ const Doctores = () => {
             <Form.Label>Especialidad</Form.Label>
             <Form.Select
               type="text"
-              name="editespecialidasID"
+              name="nuevaEspecialidad"
               onChange={(e) => {
-                setstate(previous => ({...previous, selectedDoctor: {...previous.selectedDoctor, editespecialidasID: e.target.value}}))
+                setstate(previous => ({...previous, selectedDoctor: {...previous.selectedDoctor, nuevaEspecialidad: e.target.value}}))
               }}
-              value={state.selectedDoctor.editespecialidasID}
+              value={state.selectedDoctor.nuevaEspecialidad !== '' ? state.selectedDoctor.nuevaEspecialidad : state.selectedDoctor.especialidadVieja}
             >
               <option value="0">Seleccione una especialidad</option>
               {state.especialidades.map((item) => ( <option value={item.id} key={`${item.nombre}${item.id}`}>{item.nombre}</option>))}
