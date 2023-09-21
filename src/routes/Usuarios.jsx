@@ -180,8 +180,7 @@ export const Usuarios = () => {
       });
   
       if (response.ok) {
-        setstate(previous => ({...previous, success: "Usuario actualizado con exito"}));
-        handleCloseModal();
+        setstate(previous => ({...previous, success: "Usuario actualizado con exito", modalIsOpen: false}));
      resetFormData()
       await loadUsuarios()
         resetSuccess()
