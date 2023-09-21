@@ -7,7 +7,8 @@ import { API_URL } from "../api/api.config";
 const url = `${API_URL}/api/usuarios`;
 
 export const Usuarios = () => {
-  
+  const [data, setData] = useState([]);
+  // main form data
   const [formData, setFormData] = useState({
     nombre: "",
     telefono: "",
@@ -16,7 +17,7 @@ export const Usuarios = () => {
     password: "",
     secondPassword: "",
   });
-
+  // state of page modal selected user
   const [state, setstate] = useState({
     error: null,
     success: null,
@@ -31,33 +32,51 @@ export const Usuarios = () => {
     deleteOpen: false,
   });
 
-
+  // token of loged user
   const token = useAuthStore2((state) => state.token)
-  
-
-
+  // handle change of main form
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };
-
+// handle change of edit form
   const handleEditChange = (event) => {
     const { name, value } = event.target;
     setstate((previous) => ({...previous, selectedUser: {...previous.selectedUser, [name]: value}}))
   }
-  
+  // open edit modal  
 
-  
   const handleOpenModal = () => {
     setstate((previous) => ({...previous, modalIsOpen: true}));
   };
-
+  // close all modals
   const handleCloseModal = () => {
     setstate( previous => ({...previous, modalIsOpen: false , deleteOpen: false }) );
   };
+  // reset the main form data
+  const resetFormData = () => {
+    setFormData({
+      nombre: "",
+      telefono: "",
+      email: "",
+      fecha_nacimiento: "",
+      password: "",
+      secondPassword: "",
+    })
+  }
+  // reset the success message
+  const resetSuccess = () => {
+    setTimeout(() => {
+      setstate(previous => ({...previous, success: null} ))
+    } , 2000)
+  }
+  // reset the error message
+  const resetError = () => {
+    setTimeout(() => {
+      setstate(previous => ({...previous, error: null} ));
+    }, 2000);
+  }
 
-
-  
   const changeSelectedUser = (user) => {
     setstate((previous => ({...previous, selectedUser: {
       editnombre: user.nombre,
@@ -71,12 +90,40 @@ export const Usuarios = () => {
     } })))
   }
 
+  console.log(state.deleteOpen)
+
+  // load users from api
+  const loadUsuarios = async ()  => {
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          
+        },
+      })
+      if(response.ok) {
+        const data = await response.json()
+        setData(data)
+      }  else{
+        setstate({ ...state, error: 'Error al obtener los usuarios' });
+        setData([])
+        resetError()
+
+      }
+    } catch (error) {
+      setstate({ ...state, error: 'Error al obtener los usuarios' });
+      setData([])
+      resetError()
+    }
+
+
+  }
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-
-
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -88,58 +135,26 @@ export const Usuarios = () => {
       });
 
       if (response.ok) {
-        console.log(token)
         setstate({...state, success: 'Usuario creado con exito'})
 
-        setFormData({
-          nombre: "",
-          telefono: "",
-          email: "",
-          fecha_nacimiento: "",
-          password: "",
-          secondPassword: "",
-        })
-
-        setTimeout(() => {
-          setstate({...state, success:null})
-        } , 2000)
-
-        fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-            
-          },
-        })
-          .then((response) => response.json())
-          .then((response) => setData(response)) 
-          .catch((error) => console.error(error));
+        resetFormData()
+        resetSuccess()  
+      await  loadUsuarios()
+   
       } else {
         const responseBody = await response.json();
 
-        fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        })
-          .then((response) => response.json())
-          .then((response) => setData(response)) 
-          .catch((error) => console.error(error));
+      await loadUsuarios()
 
         setstate({...state, error: responseBody.message})
-        setTimeout(() => {
-          setstate(  previous => ({...previous, error: null}) );
-        }, 2000);
+        resetError()
       }
     } catch (error) {
       setstate(previous => ({...previous, error: "Ha ocurrido un error"}) );
+      resetError()
     }
   };
 
-  const [data, setData] = useState([]);
 
 
   const handleSubmitEdit = async (event) => {
@@ -153,9 +168,6 @@ export const Usuarios = () => {
       email: state.selectedUser?.editemail,
       password: state.selectedUser?.editpassword,
     }
-
-
-  
   
     try {
       const response = await fetch(`${url}/${userId}`, {
@@ -170,50 +182,23 @@ export const Usuarios = () => {
       if (response.ok) {
         setstate(previous => ({...previous, success: "Usuario actualizado con exito"}));
         handleCloseModal();
-        setFormData({
-          nombre: "",
-          telefono: "",
-          email: "",
-          fecha_nacimiento: "",
-          password: "",
-          secondPassword: "",
-        });
-        fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        })
-          .then((response) => response.json())
-          .then((response) => {
-          
-            setData(response)
-          }) 
-          .catch((error) => console.error(error));
-
-          setTimeout(() => {
-            setstate(  previous => ({...previous, success: null}));
-          }, 2000);
-
-
+     resetFormData()
+      await loadUsuarios()
+        resetSuccess()
       } else {
         const responseBody = await response.json();
         setstate({ ...state, error: responseBody.message });
 
-        setData([])
-
-        setTimeout(() => {
-          setstate({ ...state, error: null });
-        }, 2000);
+await loadUsuarios()
+ resetError()
       }
     } catch (error) {
       setstate({ ...state, error: "Ha ocurrido un error" });
+      resetError()
     }
   };
   
   const handleDeleteUser = async (userId) => {
-
 
     try {
       const response = await fetch(`${url}/${userId}`, {
@@ -226,48 +211,17 @@ export const Usuarios = () => {
   
       if(response.ok) {
         setstate(previous => ({...previous, success: "Usuario eliminado con exito", deleteOpen: false}));
-        fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        })
-          .then((response) => response.json())
-          .then((response) => {
-          
-            setData(response)
-          }) 
-          .catch((error) => console.error(error));
-        setTimeout(() => {
-          setstate(previous => ({...previous, success: null}));
-        }, 2000);
+        await loadUsuarios()  
+      resetSuccess()
       }else{
         setstate({ ...state, error: "Ha ocurrido un error" });
-        fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        })
-          .then((response) => response.json())
-          .then((response) => {
-          
-            setData(response)
-          }) 
-          .catch((error) => console.error(error));
-        setTimeout(() => {
-          setstate({ ...state, error: null });
-        }, 2000);
+    await loadUsuarios()
+        resetError()
       }
       
     } catch (error) {
-      console.log(error)
       setstate(previous => ({...previous, error: "Ha ocurrido un error"}));
-      setTimeout(() => {
-        setstate(previous => ({...previous, error: null}));
-      }, 2000);
+   resetError()
     }
   
   }

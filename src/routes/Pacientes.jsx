@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Table, Modal } from 'react-bootstrap';
+import { Form, Button, Table } from 'react-bootstrap';
 import { useAuthStore2 } from "../zustand-stores/auth-store";
 import { API_URL } from "../api/api.config";
+import Modal from "../components/modal";
 
 const url = `${API_URL}/api/pacientes`;
 
@@ -14,13 +15,14 @@ export const Pacientes = () => {
     email: '',
     fecha_nacimiento: ''
   });
-  const [state, setState] = useState({
+
+  const [state, setstate] = useState({
     error: null,
-    success: null
+    success: null,
+    modalIsOpen: false,
+    deleteOpen: false,
+    editOpen: false
   });
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedPaciente, setSelectedPaciente] = useState(null);
 
   const resetFormData = () => {
     setFormData({
@@ -79,35 +81,35 @@ export const Pacientes = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        setState({
+        setstate({
           ...state, success: true
         });
         setTimeout(() => {
-          setState({
-            ...state, success: ''
+          setstate({
+            ...state, success: '' 
           });
         }, 2000);
         getDatos();
         resetFormData();
       } else {
         const responseBody = await response.json();
-        setState({
+        setstate({
           ...state, success: true
         });
         setTimeout(() => {
-          setState({
-            ...state, success: ''
+          setstate({
+            ...state, success: '' 
           });
         }, 2000);
       }
     } catch (error) {
       console.error("Error al enviar datos", error);
-      setState({
-        ...state, error: "Error al enviar datos"
+      setstate({
+        ...state, error:"Error al enviar datos"
       });
       setTimeout(() => {
-        setState({
-          ...state, error: ''
+        setstate({
+          ...state, error: '' 
         });
       }, 2000);
     }
@@ -128,7 +130,6 @@ export const Pacientes = () => {
         const responseData = await response.json();
         getDatos();
         resetFormData();
-        setShowEditModal(false); // Cerrar el modal después de la edición
       } else {
         const responseBody = await response.json();
       }
@@ -151,7 +152,6 @@ export const Pacientes = () => {
         const responseData = await response.json();
         getDatos();
         resetFormData();
-        setShowDeleteModal(false); // Cerrar el modal después de la eliminación
       } else {
         const responseBody = await response.json();
       }
@@ -161,7 +161,7 @@ export const Pacientes = () => {
   }
 
   function actualizarForm(item) {
-    resetFormData();
+    resetFormData(); 
     let arreglo = {
       id: item.id,
       nombre: item.nombre,
@@ -170,8 +170,20 @@ export const Pacientes = () => {
       fecha_nacimiento: item.fecha_nacimiento
     };
     setFormData(arreglo);
-    setShowEditModal(true); // Mostrar el modal de edición
   }
+
+  const handleOpenModal = (modalName) => {
+    setstate((previous) => ({...previous, [modalName]: true}));
+  };
+
+  const handleCloseModal = () => {
+    setstate(previous => ({
+      ...previous,
+      modalIsOpen: false,
+      deleteOpen: false,
+      editOpen: false
+    }));
+  };
 
   useEffect(() => {
     getDatos();
@@ -179,22 +191,12 @@ export const Pacientes = () => {
 
   return (
     <>
-      <h2> Registro de Pacientes</h2>
+      <h2>Registro de Pacientes</h2>
       <div className="container mt-2">
         <div className="card-body">
           <Form onSubmit={enviarDatos}>
-            {state.error ? <div className="notificacion error">{state.error}</div> : null}
-            {state.success ? <div className="notificacion success">Usuario creado con éxito</div> : null}
-
-            <Form.Group>
-              <Form.Control
-                type='hidden'
-                name='nombre'
-                value={formData.id}
-                onChange={cambioData}
-              />
-            </Form.Group>
-
+            {state.error ? <div className="notificacion error">{state.error}</div> : null }
+            {state.success ? <div className="notificacion success">Usuario creado con éxito</div> : null }
             <Form.Group>
               <Form.Label>Nombre</Form.Label>
               <Form.Control
@@ -235,141 +237,120 @@ export const Pacientes = () => {
               />
             </Form.Group>
 
-            <div className="d-flex justify-content-end mt-3">
-              <Button variant='primary' type='submit'>Enviar Datos</Button>
-            </div>
+            <Button type="submit">Guardar</Button>
           </Form>
         </div>
-      </div>
-
-      <div className="row mt-5">
-        <div className="col-md-12">
-          <h1 className="mb-4">Reporte de Pacientes</h1>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>#Paciente</th>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Email</th>
-                <th>Fecha de Nacimiento</th>
-                <th>Editar</th>
-                <th>Eliminar</th>
-              </tr>
-            </thead>
-            <tbody>
-              {datos.map((item, i) => (
-                <tr key={i}>
-                  <td>{item.id}</td>
-                  <td>{item.nombre}</td>
-                  <td>{item.telefono}</td>
-                  <td>{item.email}</td>
-                  <td>{item.fecha_nacimiento}</td>
-                  <td>
-                    <Button
-                      variant='info'
-                      className='me-2'
-                      onClick={() => {
-                        actualizarForm(item); // Mostrar el modal de edición al hacer clic en "Editar"
-                      }}
-                    > 
-                      Editar 
-                      
-                    </Button>
-                   </td>
-                   <td>
-                    <Button
-                      variant='danger'
-                      onClick={() => {
-                        setSelectedPaciente(item);
-                        setShowDeleteModal(true); // Mostrar el modal de eliminación al hacer clic en "Eliminar"
-                      }}
-                    >
-                      Eliminar
-                    </Button>
-                  </td>
+        <div>
+          <div className="mt-5">
+            <Table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Teléfono</th>
+                  <th>Email</th>
+                  <th>Fecha de Nacimiento</th>
+                  <th>Editar</th>
+                  <th>Eliminar</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {datos.map((item, index) => (
+                  <tr key={item.id}>
+                    <td>{item.id}</td>
+                    <td>{item.nombre}</td>
+                    <td>{item.telefono}</td>
+                    <td>{item.email}</td>
+                    <td>{item.fecha_nacimiento}</td>
+                    <td>
+                      <button onClick={() => { actualizarForm(item); handleOpenModal("editOpen"); }}>Editar</button>
+                      </td>
+                      <td>
+                      <button onClick={() => { actualizarForm(item); handleOpenModal("deleteOpen"); }}>Eliminar</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
         </div>
       </div>
 
-      {/* Modal de Edición */}
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Editar Paciente</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={enviarDatos}>
-            <Form.Group>
-              <Form.Label>Nombre</Form.Label>
-              <Form.Control
-                type='text'
-                name='nombre'
+      {/* Modal de Editar */}
+      <Modal isOpen={state.editOpen} onClose={handleCloseModal}>
+        <div className>
+          <h1>Editar Usuario</h1>
+          <form>
+            <div className="form-group">
+              <label htmlFor="nombre">Nombre</label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                className="form-control"
                 value={formData.nombre}
                 onChange={cambioData}
               />
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>Teléfono</Form.Label>
-              <Form.Control
-                type='text'
-                name='telefono'
+            </div>
+            <div className="form-group">
+              <label htmlFor="telefono">Teléfono</label>
+              <input
+                type="tel"
+                id="telefono"
+                name="telefono"
+                className="form-control"
                 value={formData.telefono}
                 onChange={cambioData}
               />
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type='email'
-                name='email'
+            </div>
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                className="form-control"
                 value={formData.email}
                 onChange={cambioData}
               />
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>Fecha de Nacimiento</Form.Label>
-              <Form.Control
-                type='date'
-                name='fecha_nacimiento'
+            </div>
+            <div className="form-group">
+              <label htmlFor="fecha_nacimiento">Fecha de Nacimiento</label>
+              <input
+                type="date"
+                id="fecha_nacimiento"
+                name="fecha_nacimiento"
+                className="form-control"
                 value={formData.fecha_nacimiento}
                 onChange={cambioData}
               />
-            </Form.Group>
-
-            <div className="d-flex justify-content-end mt-3">
-              <Button variant='primary' type='submit'>Guardar Cambios</Button>
             </div>
-          </Form>
-        </Modal.Body>
+            <div className="d-flex justify-content-end gap-3 mt-7">
+              <Button variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
+              <Button variant="primary" onClick={() => {
+                enviarDataPUT();
+                handleCloseModal();
+              }}>Guardar Cambios</Button>
+            </div>
+          </form>
+        </div>
       </Modal>
 
-      {/* Modal de Eliminación */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Eliminar Paciente</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>¿Estás seguro de que deseas eliminar a este paciente?</p>
-          <Button
-            variant='danger'
-            onClick={() => {
-              enviarDataDelete(selectedPaciente);
-            }}
-          >
-            Sí, Eliminar
-          </Button>
-        </Modal.Body>
+      {/* Modal de Eliminar */}
+      <Modal showCloseButton={false} isOpen={state.deleteOpen} onClose={handleCloseModal}>
+        <div className="d-flex justify-content-center">
+          <h5>¿Estás seguro que deseas eliminar este usuario?</h5>
+          <div className="d-flex justify-content-end gap-3 mt-7">
+            <Button variant="danger" onClick={() => {
+              enviarDataDelete(formData);
+              handleCloseModal();
+            }}>Eliminar</Button>
+            <Button variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
+          </div>
+        </div>
       </Modal>
     </>
   );
 };
 
-
 export default Pacientes;
-
