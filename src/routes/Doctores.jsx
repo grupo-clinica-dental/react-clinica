@@ -41,14 +41,18 @@ const Doctores = () => {
   }
 
   const changeSelectedDoctor = (item) => {
+    console.log({item})
+
     setstate(previous => ({...previous, selectedDoctor: {
       editnombre: item.doctor_name,
       editcorreoelectronico: item.doctor_email,
       editcolor: item.doctor_color,
-      especialidadVieja: item.especialidad_id,
+      especialidadVieja: item.especialidades[0].especialidad_id,
       id: item.doctor_id,
       nuevaEspecialidad: ''
     }}))
+
+
   }
 
   
@@ -64,7 +68,6 @@ const Doctores = () => {
   };
 
   const cambiodata = (event) => {
-    console.log(event.target.value)
     const { name, value } = event.target;
     setFormData( previous => ({ ...previous, [name]: value }));
   };
@@ -125,7 +128,6 @@ const Doctores = () => {
         error: "Error en enviar los datos.",
       });
       resetError( )
-      console.error("Error en enviar los datos");
     }
   }
 
@@ -140,6 +142,7 @@ const Doctores = () => {
       nuevaEspecialidad: state.selectedDoctor.nuevaEspecialidad,
       id: state.selectedDoctor.id
     }
+
 
 
     try {
@@ -239,7 +242,6 @@ const Doctores = () => {
   }, []);
 
 
-console.log(state.doctores)
 
   return (
     <>
