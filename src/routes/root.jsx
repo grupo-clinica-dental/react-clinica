@@ -81,23 +81,7 @@ export default function Root() {
                   </Link>
                 </li>
 
-                <li key={router.path}>
-                  <Link to={`/Permisos`}>
-                  permisos
-                  </Link>
-                </li>
 
-                <li key={router.path}>
-                  <Link to={`/Rutas`}>
-                  Rutas
-                  </Link>
-                </li>
-
-                <li key={router.path}>
-                  <Link to={`/DoctoresEspecialidades`}>
-                  Doctores Especialidades
-                  </Link>
-                </li>
                 <li key={'/EstadosCita'}>
                   <Link to={`/EstadosCita`}>
                   Estados Cita

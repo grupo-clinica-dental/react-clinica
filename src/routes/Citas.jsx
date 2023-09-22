@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
-import { Form, Button, Table, Modal } from 'react-bootstrap';
+import  { useState, useEffect } from 'react';
+import { Form, Button, Table } from 'react-bootstrap';
 import { useAuthStore2 } from "../zustand-stores/auth-store";
 import { API_URL } from "../api/api.config";
+import Modal from '../components/modal'
 
 const url = `${API_URL}/api/citas`;
 
@@ -25,11 +26,11 @@ export const Citas = () => {
     estadosCitas: [],
     selectedCita: {
       editid: '',
-      editfecha_hora: '',
+      edit_fecha_inicio: '',
+      edit_fecha_fin: '',
       editdoctor_id: '',
       editpaciente_id: '',
       editestado_id: '',
-      editnotas: ''
     },
     showEditModal: false,
     showDeleteModal: false
@@ -57,6 +58,7 @@ export const Citas = () => {
     setFormData(previous => ( {...previous, [name]: value} )  );
   };
 
+
   const cambioEditData = (event) => {
     const { name, value } = event.target;
     setState({
@@ -76,18 +78,24 @@ export const Citas = () => {
     })); // Esto limpia el state
   }
 
+  const handleOpenModal = (modalToOpen) => {
+    setState(previous => ({
+      ...previous,
+      [modalToOpen]: true
+    }));
+  }
+
   const changeSelectedCita = (item) => {
     setState({
       ...state,
       selectedCita: {
         editid: item.id,
-        editfecha_hora: item.fecha_hora,
-        editdoctor_id: item.doctor_id,
-        editpaciente_id: item.paciente_id,
-        editestado_id: item.estado_id,
-        editnotas: item.notas
+        edit_fecha_inicio: item.fecha_inicio,
+        edit_fecha_fin: item.fecha_fin,
+        editdoctor_id: item.doctor.id,
+        editpaciente_id: item.paciente.id,
+        editestado_id: item.estado_cita.id,
       },
-      showEditModal: true
     });
   }
 
@@ -151,9 +159,11 @@ setTimeout(() => {
         resetFormData();
         resetSuccess();
       } else {
+        const newRepsonse = await response.json();
         setState({
-          ...state, error: "Error al enviar datos"
+          ...state, error: newRepsonse.message
         });
+        await getDatos();
         resetError( )
       }
     } catch (error) {
@@ -165,31 +175,52 @@ setTimeout(() => {
     }
   };
 
-  const enviarDataPUT = async () => {
+  const enviarDataPUT = async (e) => {
+
+    e.preventDefault();
+    
+
     try {
-      const response = await fetch(url + '/' + formData.id, {
+
+      const data ={ 
+        fecha_fin : state.selectedCita.edit_fecha_fin,
+        fecha_inicio : state.selectedCita.edit_fecha_inicio,
+        doctor_id : state.selectedCita.editdoctor_id,
+        paciente_id : state.selectedCita.editpaciente_id,
+        estado_id : state.selectedCita.editestado_id,
+        id : state.selectedCita.editid
+      }
+
+      const response = await fetch(url + '/' + data.id, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(data)
       });
 
+
+      console.log(response)
+
       if (response.ok) {
+        setState(previous => ({ ...previous, success: 'Datos enviados correctamente', showEditModal: false }) );
+        resetSuccess();
       await  getDatos();
         resetFormData();
       } else {
-        console.error("Error al actualizar datos", await response.json());
+        setState(previous => ({ ...previous, error: 'Error al enviar datos' }) );
+        resetError();
       }
     } catch (error) {
-      console.error("Error al enviar datos", error);
+      resetError();
+
     }
   };
 
-  const enviarDataDelete = async (item) => {
+  const enviarDataDelete = async () => {
     try {
-      const response = await fetch(url + '/' + item.id, {
+      const response = await fetch(url + '/' + state.selectedCita.editid, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -198,30 +229,22 @@ setTimeout(() => {
       });
 
       if (response.ok) {
+
+        setState(previous => ({ ...previous, success: 'Cita eliminada con éxito', showDeleteModal: false }) )
+        resetSuccess();
      await  getDatos();
         resetFormData();
       } else {
-        console.error("Error al eliminar datos", await response.json());
+        setState(previous => ({ ...previous, error: 'Error al eliminar la cita' }) );
+        resetError();
       }
     } catch (error) {
-      console.error("Error al enviar datos", error);
+      setState(previous => ({ ...previous, error: 'Error al eliminar la cita' }) );
+      resetError();
     }
   };
 
-//   function actualizarForm(item) {
-//     setFormData({
-//       id: item.id,
-//       fecha_hora: item.fecha_hora,
-//       doctor_id: item.doctor_id,
-//       paciente_id: item.paciente_id,
-//       estado_id: item.estado_id,
-//       google_calendar_event_id: item.google_calendar_event_id,
-//       ubicacion: item.ubicacion,
-//       descripcion: item.descripcion,
-//       notas: item.notas
-//     });
-//     setShowEditModal(true); // Esto abrirá el modal de edición
-// }
+
 
 
 const obtenerDoctores = async () => {
@@ -236,11 +259,12 @@ const obtenerDoctores = async () => {
       if (response.ok) {
         setState(previous => ({ ...previous, doctores: data }));
       } else {
-        setState(previous => ({ ...previous, error: 'Algo salio mal' }));
+        setState(previous => ({ ...previous, error: 'Algo salio mal en doctores' }));
         resetError();
       }
   } catch (error) {
-      console.error("Error al hacer la solicitud de doctores:", error);
+    setState(previous => ({ ...previous, error: 'Algo salio mal doctores' }));
+    resetError();
   }
 };
 const obtenerEstadosCitas = async () => {
@@ -255,10 +279,14 @@ const obtenerEstadosCitas = async () => {
       if (response.ok) {
       setState(previous => ({ ...previous, estadosCitas: data }));
       } else {
-          console.error("Error al obtener estados de citas");
+        setState(previous => ({ ...previous, error: 'Algo salio mal en estados citas' }));
+    resetError();
+
       }
   } catch (error) {
-      console.error("Error al hacer la solicitud de estados de citas:", error);
+    setState(previous => ({ ...previous, error: 'Algo salio mal en estados citas' }));
+    resetError();
+
   }
 };
 const getPacientes = async () => {
@@ -273,7 +301,8 @@ const getPacientes = async () => {
       const data = await response.json();
    setState(previous => ({ ...previous, pacientes: data.item_paciente }));
   } else {
-      console.error("Error al obtener pacientes", await response.text());
+    setState(previous => ({ ...previous, error: 'Algo salio mal' }));
+    resetError();
   }
 };
 
@@ -380,7 +409,8 @@ const getPacientes = async () => {
                     <Button
                         variant='info'
                         onClick={() => {
-                           changeSelectedCita(item);
+                          changeSelectedCita(item);
+                          handleOpenModal('showEditModal');
                         }}
                     >
                         Editar
@@ -393,7 +423,6 @@ const getPacientes = async () => {
                           changeSelectedCita(item); 
                           setState(previous => ({
                             ...previous,
-                            selectedCita: {...previous.selectedCita, editid: item.id},
                             showDeleteModal: true
                           }))
                         }}
@@ -408,32 +437,40 @@ const getPacientes = async () => {
         </div>
     </div>
 
-   
-    {/* <Modal show={state.showEditModal} onHide={() => handleCloseModal}>
-        <Modal.Header closeButton>
-            <Modal.Title>Editar Cita</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-            <Form onSubmit={enviarDatos}>
-                <Form.Group>
-                    <Form.Label>Fecha y Hora</Form.Label>
-                    <Form.Control
-                        type='datetime-local'
-                        name='fecha_hora'
-                        value={formData.fecha_hora}
-                        onChange={cambioData}
-                    />
-                </Form.Group>
-                <Form.Group>
+<Modal isOpen={state.showEditModal} onClose={handleCloseModal}>
+          <h1>Editar Cita</h1>
+                        {/* // copilot creame el formulario con los name que te pongo en el state.selectedCita */}
+
+                        <Form onSubmit={enviarDataPUT}>
+      <Form.Group>
+        <Form.Label>Fecha Inicio</Form.Label>
+        <Form.Control
+          type='date'
+          name='edit_fecha_inicio'
+          value={state.selectedCita.edit_fecha_inicio}
+          onChange={cambioEditData}
+        />
+      </Form.Group>
+
+      <Form.Group>
+        <Form.Label>Fecha Fin</Form.Label>
+        <Form.Control
+          type='date'
+          name='edit_fecha_fin'
+          value={state.selectedCita.edit_fecha_fin}
+          onChange={cambioEditData}
+        />
+      </Form.Group>
+      <Form.Group>
     <Form.Label>Doctor ID</Form.Label>
-    <Form.Control as="select" name='doctor_id'  value={formData.doctor_id} onChange={cambioData}>  <option value="">Selecciona El Doctor</option>
-        {state.doctores.map(doctor => <option key={doctor.id} value={doctor.id}>  {doctor.nombre}</option>)}
+    <Form.Control as="select" name='editdoctor_id'  value={state.selectedCita.editdoctor_id} onChange={cambioEditData}>  <option value="">Selecciona El Doctor</option>
+        {state.doctores.map(doctor => <option key={doctor.doctor_id} value={doctor.doctor_id}>  {doctor.doctor_name}</option>)}
     </Form.Control>
 </Form.Group>
 
-<Form.Group>
+      <Form.Group>
     <Form.Label>Paciente</Form.Label>
-    <Form.Control as="select" name='paciente_id' value={formData.paciente_id} onChange={cambioData}>
+    <Form.Control as="select" name='editpaciente_id' value={state.selectedCita.editpaciente_id} onChange={cambioEditData}>
         <option value="">Seleccione El Paciente</option>
         {state.pacientes && state.pacientes.map(paciente => (
             <option key={paciente.id} value={paciente.id}>
@@ -443,83 +480,53 @@ const getPacientes = async () => {
     </Form.Control>
 </Form.Group>
 
-
 <Form.Group>
     <Form.Label>Estado Cita</Form.Label>
-    <Form.Control as="select" name='estado_id' value={formData.estado_id} onChange={cambioData}><option value="">Selecciona el Estado de la Cita</option>
+    <Form.Control as="select" name='editestado_id' value={state.selectedCita.editestado_id} onChange={cambioEditData}><option value="">Selecciona el Estado de la Cita</option>
         {state.estadosCitas.map((estado) => (
             <option key={`${estado.id}${estado.estado}`} value={estado.id}>{estado.estado}</option>
         ))}
     </Form.Control>
 </Form.Group>
 
+      <Button variant="primary" type="submit">
+        Enviar
+      </Button>
+    </Form>
+</Modal>
 
-<Form.Group>
-    <Form.Label>ID de Evento en Google Calendar</Form.Label>
-    <Form.Control
-        type='text'
-        name='google_calendar_event_id'
-        value={formData.google_calendar_event_id}
-        onChange={cambioData}
-    />
-</Form.Group>
+<Modal >
 
-<Form.Group>
-    <Form.Label>Ubicación</Form.Label>
-    <Form.Control
-        type='text'
-        name='ubicacion'
-        value={formData.ubicacion}
-        onChange={cambioData}
-    />
-</Form.Group>
-
-<Form.Group>
-    <Form.Label>Descripción</Form.Label>
-    <Form.Control
-        type='textarea'
-        name='descripcion'
-        value={formData.descripcion}
-        onChange={cambioData}
-    />
-</Form.Group>
-
-<Form.Group>
-    <Form.Label>Notas</Form.Label>
-    <Form.Control
-        type='textarea'
-        name='notas'
-        value={formData.notas}
-        onChange={cambioData}
-    />
-</Form.Group>
+  <h1>Editar Cita</h1>
+</Modal>
 
 
-
-                <div className="d-flex justify-content-end mt-3">
-                    <Button variant='primary' type='submit'>Guardar Cambios</Button>
-                </div>
-            </Form>
-        </Modal.Body>
-    </Modal> */}
-
-  
-    {/* <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-            <Modal.Title>Eliminar Cita</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-            <p>¿Estás seguro de que deseas eliminar esta cita?</p>
-            <Button
-                variant='danger'
-                onClick={() => {
-                    enviarDataDelete(selectedCita);
-                }}
-            >
-                Sí, Eliminar
+      {/* Modal de Eliminar */}
+      <Modal
+      isOpen={state.showDeleteModal} 
+      onClose={handleCloseModal}
+        showCloseButton={false}
+      >
+        <div className>
+          <h5>¿Estás seguro que deseas eliminar esta Cita?</h5>
+          <div className="d-flex justify-content-end gap-3 mt-7">
+            <Button variant="danger" onClick={() => {
+              enviarDataDelete();
+            }}>
+              Eliminar
             </Button>
-        </Modal.Body>
-    </Modal> */}
+            <Button
+              variant="secondary"
+              onClick={handleCloseModal}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+   
+   
 </>
 
   );
