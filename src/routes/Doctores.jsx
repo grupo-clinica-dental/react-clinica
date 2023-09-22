@@ -95,7 +95,8 @@ const Doctores = () => {
     }, 2000);
   }
 
-  const enviarDataPost = async () => {
+  const enviarDataPost = async (e) => {
+    e.preventDefault();
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -107,11 +108,12 @@ const Doctores = () => {
       });
       if (response.ok) {
         resetFormData();
-        await getDatos();
         setstate({
           ...state,
           success: 'Doctor creado con exito',
         });
+
+        await getDatos();
 
         resetSuccess();
 
@@ -328,15 +330,8 @@ const Doctores = () => {
       </Modal>
 
       <h2> Doctores</h2>
-      <Form onSubmit={Enviardatos}>
-        <Form.Group>
-        <Form.Control
-            type="hidden"
-            name="id"
-            value={formData.id}
-            onChange={cambiodata}
-          />
-        </Form.Group>
+      <Form onSubmit={enviarDataPost}>
+
 
 
         <Form.Group>
